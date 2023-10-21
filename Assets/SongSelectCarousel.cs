@@ -142,9 +142,8 @@ public class SongSelectCarousel : MonoBehaviour
     }
 
 
-    private async void Start()
+    private void Start()
     {
-        await UniTask.Delay(1000);
         getAllSongsFromDatabase();
     }
 
@@ -232,7 +231,7 @@ public class SongSelectCarousel : MonoBehaviour
     
 
 
-    private static void processAllBeatmaps()
+    public static void processAllBeatmaps()
     {
         Debug.LogWarning("PROCESSING ALL BEATMAPS, THIS MAY TAKE A LONG TIME!");
 

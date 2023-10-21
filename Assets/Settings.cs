@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Runtime.InteropServices;
+using Cysharp.Threading.Tasks;
 
 public class Settings : MonoBehaviour
 {
@@ -129,6 +130,7 @@ public class Settings : MonoBehaviour
         {
             Directory.CreateDirectory(Application.persistentDataPath + "/BGS/");
         }
+        
         makeDefaultSettings();
 
         checkSavedSettings();
@@ -136,6 +138,12 @@ public class Settings : MonoBehaviour
         onCSSToggleChange();
         onCursorToggleChange();
         onCursorSliderChange();
+        if (!File.Exists(Application.persistentDataPath + "/beatmaps.kosudb"))
+        {
+            File.Create(Application.persistentDataPath + "/beatmaps.kosudb");
+            UniTask.Delay(100);
+            SongSelectCarousel.processAllBeatmaps();
+        }
     }
 
     // Update is called once per frame
