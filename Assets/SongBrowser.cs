@@ -22,7 +22,7 @@ public class SongBrowser : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        Debug.Log("Songs directory is: " + Application.persistentDataPath);
+        Debug.Log("Songs directory is: " + Application.persistentDataPath + "/Songs/");
     }
 
 

@@ -111,7 +111,7 @@ public class SongV2 : MonoBehaviour
 
     private void checkBeatmapAlreadyDownloaded()
     {
-        var dir = Directory.GetDirectories(Application.persistentDataPath);
+        var dir = Directory.GetDirectories(Application.persistentDataPath + "/Songs/");
         for (var i = 0; i < dir.Length; i++)
         {
             var files = Directory.GetFiles(dir[i]);
@@ -146,7 +146,7 @@ public class SongV2 : MonoBehaviour
         downloadButton.GetComponent<Button>().interactable = false;
         downloadLoadingBox.SetActive(true);
 
-        var path = Application.persistentDataPath + "/" + SID + " " + Artist + " - " + Title;
+        var path = Application.persistentDataPath + "/Songs/" + SID + " " + Artist + " - " + Title;
         var data = UnityWebRequest.Get(minoServerURL + "d/" + SID + "n");
         await data.SendWebRequest();
         if (data.result == UnityWebRequest.Result.Success)
@@ -192,6 +192,7 @@ public class SongV2 : MonoBehaviour
             Debug.Log("Uncompress done, original zip file deleted.");
             if (Directory.Exists(path))
             {
+                // Get Star Ratings
                 var filePath = path + "/kosuStarRating.txt";
                 File.WriteAllText(filePath, "");
                 Debug.Log("Getting difficulty ratings for each children beatmap...");
@@ -227,6 +228,12 @@ public class SongV2 : MonoBehaviour
                             }
                         }
                 }
+                
+                // Process beatmap
+                string textToWrite = File.ReadAllText(Application.persistentDataPath + "/beatmaps.kosudb") + SongSelectCarousel.processFolder(path);
+                File.WriteAllText(Application.persistentDataPath + "/beatmaps.kosudb", textToWrite);
+                
+
             }
 
             processingMapLoadingBox.SetActive(false);

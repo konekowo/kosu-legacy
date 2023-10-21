@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Runtime.InteropServices;
@@ -120,6 +121,14 @@ public class Settings : MonoBehaviour
 
     private void Start()
     {
+        if (!Directory.Exists(Application.persistentDataPath + "/Songs/"))
+        {
+            Directory.CreateDirectory(Application.persistentDataPath + "/Songs/");
+        }
+        if (!Directory.Exists(Application.persistentDataPath + "/BGS/"))
+        {
+            Directory.CreateDirectory(Application.persistentDataPath + "/BGS/");
+        }
         makeDefaultSettings();
 
         checkSavedSettings();

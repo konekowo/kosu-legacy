@@ -59,7 +59,7 @@ public class Song : MonoBehaviour
 
     private void checkBeatmapAlreadyDownloaded()
     {
-        var dir = Directory.GetDirectories(Application.persistentDataPath);
+        var dir = Directory.GetDirectories(Application.persistentDataPath + "/Songs/");
         for (var i = 0; i < dir.Length; i++)
         {
             var files = Directory.GetFiles(dir[i]);
@@ -224,10 +224,10 @@ audioPause();
         else
         {
             var results = www.downloadHandler.data;
-            var path = Application.persistentDataPath + "/" + SID + " - " + Title + ".zip";
+            var path = Application.persistentDataPath + "/Songs/" + SID + " - " + Title + ".zip";
             File.WriteAllBytes(path, results);
             Debug.Log("Downloaded Beatmap, uncompressing...");
-            ZipUtility.UncompressFromZip(path, null, Application.persistentDataPath + "/" + SID + " - " + Title);
+            ZipUtility.UncompressFromZip(path, null, Application.persistentDataPath + "/Songs/" + SID + " - " + Title);
             File.Delete(path);
             Debug.Log("Uncompress done, original zip file deleted.");
             LoadingPanel.SetActive(false);

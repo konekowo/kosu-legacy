@@ -45,10 +45,10 @@ public class SoundSystem : MonoBehaviour
         var SID = fileName.Split(' ')[0];
         var Title = fileName.Split('-')[1];
         Title = Title.Substring(1, Title.Length - 5);
-        var path = Application.persistentDataPath + "/" + SID + " - " + Title + ".zip";
+        var path = Application.persistentDataPath + "/Songs/" + SID + " - " + Title + ".zip";
         File.WriteAllBytes(path, results);
         Debug.Log("Downloaded Beatmap, uncompressing...");
-        ZipUtility.UncompressFromZip(path, null, Application.persistentDataPath + "/" + SID + " - " + Title);
+        ZipUtility.UncompressFromZip(path, null, Application.persistentDataPath + "/Songs/" + SID + " - " + Title);
         File.Delete(path);
         Debug.Log("Uncompress done, original zip file deleted.");
         JSAlert("Beatmap Imported!");

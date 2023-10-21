@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Unity.SharpZipLib.Utils;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using Cysharp.Threading.Tasks;
 using System.Threading;
@@ -90,7 +91,7 @@ public class SongSelectCarousel : MonoBehaviour
         var previewTimeMS = float.Parse(gameobject.gameObject.transform.GetChild(11).name);
         var previewTimeSec = previewTimeMS / 1000;
         LoadingScreen.SetActive(true);
-        Debug.Log(gameObject.name);
+        //Debug.Log(gameObject.name);
 
 #if UNITY_EDITOR
         StartCoroutine(getSongPCOnly(gameobject.transform.GetChild(5).name, previewTimeSec));
@@ -144,20 +145,19 @@ public class SongSelectCarousel : MonoBehaviour
     private async void Start()
     {
         await UniTask.Delay(1000);
-        getAllSongsFromStorage();
+        getAllSongsFromDatabase();
     }
 
-
-    private async void getAllSongsFromStorage()
+    private void getAllSongsFromDatabase()
     {
-        var dir = Directory.GetDirectories(Application.persistentDataPath);
-
-
-        for (var i = 0; i < dir.Length; i++)
+        long benchmarkStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        int benchmarknumofbeatmaps = 0;
+        string[] dbFile = File.ReadAllLines(Application.persistentDataPath+"/beatmaps.kosudb");
+        for (int i = 0; i < dbFile.Length; i++)
         {
-            var files = Directory.GetFiles(dir[i]);
-            for (var x = 0; x < files.Length; x++)
+            if (dbFile[i] != "")
             {
+                benchmarknumofbeatmaps++;
                 var SongID = "";
                 var SongTitle = "";
                 var SongArtist = "";
@@ -167,71 +167,193 @@ public class SongSelectCarousel : MonoBehaviour
                 var songFileName = "";
                 var difficulty = "";
                 var previewTime = "";
+                var osuFile = "";
+                var songFolder = "";
 
-                if (files[x].EndsWith(".osu"))
+                string[] songData = dbFile[i].Split("📂");
+                SongID = songData[0];
+                SongTitle = songData[1];
+                SongArtist = songData[2];
+                SongMapper = songData[3];
+                imgDir = songData[4];
+                songDir = songData[5];
+                songFileName = songData[6];
+                difficulty = songData[7];
+                previewTime = songData[8];
+                osuFile = songData[9];
+                songFolder = songData[10];
+                
+            
+            
+                yCount++;
+                var newSongObject = Instantiate(songObject);
+                newSongObject.GetComponent<RectTransform>()
+                    .SetParent(gameObject.transform.GetComponent<RectTransform>());
+                newSongObject.transform.localScale = songObject.transform.localScale;
+
+                newSongObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(
+                    songObject.GetComponent<RectTransform>().anchoredPosition.x,
+                    songObject.GetComponent<RectTransform>().anchoredPosition.y - 72 * yCount + 72);
+                newSongObject.transform.GetChild(1).GetComponent<TMP_Text>().text = SongTitle;
+                newSongObject.transform.GetChild(4).GetComponent<TMP_Text>().text = difficulty;
+                if (File.Exists(Application.persistentDataPath + "/BGS/"+ SongID + ".jpg"))
                 {
-                    var osuFile = File.ReadAllLines(files[x]);
-                    for (var y = 0; y < osuFile.Length; y++)
-                    {
-                        if (osuFile[y].StartsWith("BeatmapSetID:")) SongID = osuFile[y].Split(":")[1];
-                        if (osuFile[y].StartsWith("Title:")) SongTitle = osuFile[y].Split(":")[1];
-                        if (osuFile[y].StartsWith("Artist:")) SongArtist = osuFile[y].Split(":")[1];
-                        if (osuFile[y].StartsWith("Creator:")) SongMapper = osuFile[y].Split(":")[1];
-                        if (osuFile[y].StartsWith("//Background and Video events"))
-                            imgDir = dir[i] + "/" + osuFile[y + 1].Split(",")[2].Split('"')[1];
-                        //Debug.Log(imgDir);
-                        if (osuFile[y].StartsWith("AudioFilename"))
-                        {
-                            songDir = dir[i] + "/" + osuFile[y].Split(": ")[1];
-                            songFileName = osuFile[y].Split(": ")[1];
-                        }
-
-                        if (osuFile[y].StartsWith("Version:")) difficulty = osuFile[y].Split(":")[1];
-                        if (osuFile[y].StartsWith("PreviewTime:")) previewTime = osuFile[y].Split(":")[1];
-                    }
-
-                    yCount++;
-                    await UniTask.Delay(1);
-                    var newSongObject = Instantiate(songObject);
-                    newSongObject.GetComponent<RectTransform>()
-                        .SetParent(gameObject.transform.GetComponent<RectTransform>());
-                    newSongObject.transform.localScale = songObject.transform.localScale;
-
-                    newSongObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(
-                        songObject.GetComponent<RectTransform>().anchoredPosition.x,
-                        songObject.GetComponent<RectTransform>().anchoredPosition.y - 72 * yCount + 72);
-                    newSongObject.transform.GetChild(1).GetComponent<TMP_Text>().text = SongTitle;
-                    newSongObject.transform.GetChild(4).GetComponent<TMP_Text>().text = difficulty;
-                    if (File.Exists(imgDir))
-                    {
-                        var imgData = File.ReadAllBytes(imgDir);
-                        var imageTexture = new Texture2D(2, 2);
-                        imageTexture.LoadImage(imgData);
-                        var sprite = Sprite.Create(imageTexture,
-                            new Rect(0f, 0f, imageTexture.width, imageTexture.height), new Vector2(0.5f, 0.5f));
-                        newSongObject.transform.GetChild(2).gameObject.transform.GetChild(0).GetComponent<Image>()
-                            .sprite = sprite;
-                    }
-
-                    newSongObject.transform.GetChild(5).name = songDir;
-                    newSongObject.transform.GetChild(6).name = dir[i];
-                    newSongObject.transform.GetChild(7).name = imgDir;
-                    newSongObject.transform.GetChild(8).GetComponent<TMP_Text>().text = SongMapper;
-                    newSongObject.transform.GetChild(9).GetComponent<TMP_Text>().text = SongArtist;
-                    newSongObject.transform.GetChild(10).name = SongID;
-                    newSongObject.transform.GetChild(11).name = previewTime;
-                    newSongObject.transform.GetChild(12).name = dir[i];
-                    //newSongObject.transform.position = new Vector3(newSongObject.transform.position.x, newSongObject.transform.position.y, 0f);
-                    newSongObject.SetActive(true);
-
-                    //yield return true;
-                    //break;
+                    var imgData = File.ReadAllBytes(Application.persistentDataPath + "/BGS/"+ SongID + ".jpg");
+                    var imageTexture = new Texture2D(2, 2);
+                    imageTexture.LoadImage(imgData);
+                    var sprite = Sprite.Create(imageTexture,
+                        new Rect(0f, 0f, imageTexture.width, imageTexture.height), new Vector2(0.5f, 0.5f));
+                    newSongObject.transform.GetChild(2).gameObject.transform.GetChild(0).GetComponent<Image>()
+                        .sprite = sprite;
                 }
+
+                newSongObject.transform.GetChild(5).name = songDir;
+                newSongObject.transform.GetChild(6).name = songFolder;
+                newSongObject.transform.GetChild(7).name = imgDir;
+                newSongObject.transform.GetChild(8).GetComponent<TMP_Text>().text = SongMapper;
+                newSongObject.transform.GetChild(9).GetComponent<TMP_Text>().text = SongArtist;
+                newSongObject.transform.GetChild(10).name = SongID;
+                newSongObject.transform.GetChild(11).name = previewTime;
+                newSongObject.transform.GetChild(12).name = songFolder;
+                //newSongObject.transform.position = new Vector3(newSongObject.transform.position.x, newSongObject.transform.position.y, 0f);
+                newSongObject.SetActive(true);
+
+                //yield return true;
+                //break;
             }
+            
         }
+        long benchmarkEndTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        Debug.Log(benchmarknumofbeatmaps + " individual .osu beatmap files read in "+(benchmarkEndTime - benchmarkStartTime) + " milliseconds!");
+    }
+    
+    
+    
+    
+
+
+    private static void processAllBeatmaps()
+    {
+        Debug.LogWarning("PROCESSING ALL BEATMAPS, THIS MAY TAKE A LONG TIME!");
+
+        if (!File.Exists(Application.persistentDataPath + "/beatmaps.kosudb"))
+        {
+            File.Create(Application.persistentDataPath + "/beatmaps.kosudb");
+        }
+
+        
+        
+        
+        var dir = Directory.GetDirectories(Application.persistentDataPath+"/Songs/");
+        string textToWrite = "";
+
+        for (var i = 0; i < dir.Length; i++)
+        {
+            textToWrite += processFolder(dir[i]);
+        }
+
+        UniTask.Delay(100);
+        File.WriteAllText(Application.persistentDataPath+"/beatmaps.kosudb", textToWrite);
     }
 
+    public static string processFolder(string dir)
+    {
+        string textToWrite = "";
+        var files = Directory.GetFiles(dir);
+        string lastSongID = "";
+        for (var x = 0; x < files.Length; x++)
+        {
+            var SongID = "";
+            var SongTitle = "";
+            var SongArtist = "";
+            var SongMapper = "";
+            var imgDir = "";
+            var songDir = "";
+            var songFileName = "";
+            var difficulty = "";
+            var previewTime = "";
 
+            if (files[x].EndsWith(".osu"))
+            {
+                var osuFile = File.ReadAllLines(files[x]);
+                for (var y = 0; y < osuFile.Length; y++)
+                {
+                    if (osuFile[y].StartsWith("BeatmapSetID:")) SongID = osuFile[y].Split(":")[1];
+                    if (osuFile[y].StartsWith("Title:")) SongTitle = osuFile[y].Split(":")[1];
+                    if (osuFile[y].StartsWith("Artist:")) SongArtist = osuFile[y].Split(":")[1];
+                    if (osuFile[y].StartsWith("Creator:")) SongMapper = osuFile[y].Split(":")[1];
+                    if (osuFile[y].StartsWith("//Background and Video events"))
+                        imgDir = dir + "/" + osuFile[y + 1].Split(",")[2].Split('"')[1];
+                    //Debug.Log(imgDir);
+                    if (osuFile[y].StartsWith("AudioFilename"))
+                    {
+                        songDir = dir + "/" + osuFile[y].Split(": ")[1];
+                        songFileName = osuFile[y].Split(": ")[1];
+                    }
+
+                    if (osuFile[y].StartsWith("Version:")) difficulty = osuFile[y].Split(":")[1];
+                    if (osuFile[y].StartsWith("PreviewTime:")) previewTime = osuFile[y].Split(":")[1];
+                }
+                textToWrite += SongID + "📂" + SongTitle + "📂" + SongArtist + "📂" + SongMapper + "📂" + imgDir +
+                               "📂" + songDir + "📂" + songFileName + "📂" + difficulty + "📂" + previewTime + "📂" + files[x] + "📂" + dir +"\n";
+
+
+                if (lastSongID != SongID)
+                {
+                    byte[] imgData = File.ReadAllBytes(imgDir);
+                    Texture2D image = new Texture2D(2, 2);
+                    image.LoadImage(imgData);
+                    Texture2D resizedImg = new Texture2D(200, 150);
+                    Bilinear(image, 200, 150, resizedImg);
+                    byte[] resizedImgData = resizedImg.EncodeToJPG();
+                    File.WriteAllBytes(Application.persistentDataPath + "/BGS/"+SongID+".jpg", resizedImgData);
+                }
+                
+                
+                // all code has to be before this line!
+                lastSongID = SongID;
+
+            }
+
+            
+        }
+
+        return textToWrite;
+    }
+
+    public static void Bilinear(Texture2D source, int newWidth, int newHeight, Texture2D resizedTexture)
+    {
+        Color[] pixels = new Color[newWidth * newHeight];
+        float incX = (1.0f / (float)newWidth) * (source.width - 1);
+        float incY = (1.0f / (float)newHeight) * (source.height - 1);
+
+        for (int y = 0; y < newHeight; y++)
+        {
+            for (int x = 0; x < newWidth; x++)
+            {
+                float pixelX = x * incX;
+                float pixelY = y * incY;
+                int floorX = (int)Mathf.Floor(pixelX);
+                int floorY = (int)Mathf.Floor(pixelY);
+                int ceilX = Mathf.CeilToInt(pixelX);
+                int ceilY = Mathf.CeilToInt(pixelY);
+
+                Color a = source.GetPixel(floorX, floorY);
+                Color b = source.GetPixel(ceilX, floorY);
+                Color c = source.GetPixel(floorX, ceilY);
+                Color d = source.GetPixel(ceilX, ceilY);
+
+                float lerpX = pixelX - floorX;
+                float lerpY = pixelY - floorY;
+
+                Color result = Color.Lerp(Color.Lerp(a, b, lerpX), Color.Lerp(c, d, lerpX), lerpY);
+                pixels[y * newWidth + x] = result;
+            }
+        }
+
+        resizedTexture.SetPixels(pixels);
+        resizedTexture.Apply();
+    }
     private void getAllSongsAndDownload()
     {
         var listString = PlayerPrefs.GetString("BeatmapList").Split(",");
