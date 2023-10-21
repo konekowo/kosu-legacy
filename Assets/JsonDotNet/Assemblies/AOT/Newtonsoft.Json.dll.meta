@@ -1,6 +1,6 @@
 fileFormatVersion: 2
-guid: 9b6ba260dada0ea4a871a42011f8b87d
-timeCreated: 1466788355
+guid: 6a3c684705042f345975d924f6983e36
+timeCreated: 1466788352
 licenseType: Store
 PluginImporter:
   serializedVersion: 1
@@ -9,7 +9,7 @@ PluginImporter:
   isPreloaded: 0
   platformData:
     Android:
-      enabled: 0
+      enabled: 1
       settings:
         CPU: AnyCPU
     Any:
@@ -38,9 +38,15 @@ PluginImporter:
       settings:
         CPU: AnyCPU
     SamsungTV:
-      enabled: 0
+      enabled: 1
       settings:
         STV_MODEL: STANDARD_13
+    Tizen:
+      enabled: 1
+      settings: {}
+    WebGL:
+      enabled: 1
+      settings: {}
     Win:
       enabled: 0
       settings:
@@ -56,12 +62,15 @@ PluginImporter:
         DontProcess: False
         PlaceholderPath: Assets/JsonDotNet/Assemblies/Standalone/Newtonsoft.Json.dll
         SDK: AnySDK
-        ScriptingBackend: DotNet
+        ScriptingBackend: Il2Cpp
     iOS:
-      enabled: 0
+      enabled: 1
       settings:
         CompileFlags: 
         FrameworkDependencies: 
+    tvOS:
+      enabled: 1
+      settings: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
