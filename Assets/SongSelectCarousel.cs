@@ -15,6 +15,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using JetBrains.Annotations;
 
 public class SongSelectCarousel : MonoBehaviour
 {
@@ -43,6 +44,10 @@ public class SongSelectCarousel : MonoBehaviour
 
     public GameObject SoundSystemPrefab;
     public GameObject LoadingScreen;
+    
+    private CancellationTokenSource cancellationTokenSource;
+    private CancellationToken cancellationToken;
+    public TMP_InputField searchBar;
 
     //public GameObject songContainer;
 
@@ -147,14 +152,57 @@ public class SongSelectCarousel : MonoBehaviour
         getAllSongsFromDatabase();
     }
 
-    private void getAllSongsFromDatabase()
+    public async void search()
+    {
+        if (cancellationTokenSource != null)
+        {
+            cancellationTokenSource.Cancel();
+        }
+        var source = new CancellationTokenSource();
+        var token = source.Token;
+        cancellationToken = token;
+        cancellationTokenSource = source;
+        await UniTask.Delay(300, cancellationToken: cancellationToken);
+        getAllSongsFromDatabase(searchStr: searchBar.text);
+    }
+
+    private void getAllSongsFromDatabase([CanBeNull] string searchStr = null)
     {
         long benchmarkStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+        yCount = 0;
+        for (int i = 0; i < gameObject.transform.childCount; i++)
+        {
+            if (gameObject.transform.GetChild(i).gameObject.name == "Song(Clone)")
+            {
+                Destroy(gameObject.transform.GetChild(i).gameObject);
+            }
+        }
         int benchmarknumofbeatmaps = 0;
         string[] dbFile = File.ReadAllLines(Application.persistentDataPath+"/beatmaps.kosudb");
-        for (int i = 0; i < dbFile.Length; i++)
+        ArrayList filteredArray = new ArrayList();
+        // i know this search algorithm is ass, but it should work for now!
+        if (searchStr != null)
         {
-            if (dbFile[i] != "")
+            
+            for (int i = 0; i < dbFile.Length; i++)
+            {
+                string[] data = dbFile[i].Split("📂");
+                
+                    if (data[1].ToString().ToLower().Contains(searchStr.ToLower()))
+                    {
+                        filteredArray.Add(dbFile[i]);
+                        
+                    }
+                
+                
+            }
+        
+            
+        }
+        
+        for (int i = 0; i < (searchStr == null? dbFile.Length: filteredArray.Count); i++)
+        {
+            if ((searchStr == null? dbFile[i] : filteredArray[i]) != "")
             {
                 benchmarknumofbeatmaps++;
                 var SongID = "";
@@ -169,7 +217,7 @@ public class SongSelectCarousel : MonoBehaviour
                 var osuFile = "";
                 var songFolder = "";
 
-                string[] songData = dbFile[i].Split("📂");
+                var songData = (searchStr == null? dbFile[i] : filteredArray[i].ToString()).Split("📂");
                 SongID = songData[0];
                 SongTitle = songData[1];
                 SongArtist = songData[2];
@@ -255,6 +303,8 @@ public class SongSelectCarousel : MonoBehaviour
         File.WriteAllText(Application.persistentDataPath+"/beatmaps.kosudb", textToWrite);
     }
 
+    
+    
     public static string processFolder(string dir)
     {
         string textToWrite = "";

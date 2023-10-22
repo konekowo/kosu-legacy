@@ -86,7 +86,7 @@ public class SongLoader : MonoBehaviour
     }
 
 
-    private async void readOsuFile(string filePath, string songFolderPath)
+    private void readOsuFile(string filePath, string songFolderPath)
     {
         var songLines = File.ReadAllLines(filePath);
         var songFilePath = "";
@@ -279,7 +279,7 @@ public class SongLoader : MonoBehaviour
 
     private IEnumerator getSongPCOnly(string url)
     {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || UNITY_64
         var mp3Url = "file://" + url;
 #else
         string mp3Url = url;

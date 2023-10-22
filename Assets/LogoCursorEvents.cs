@@ -43,7 +43,7 @@ public class LogoCursorEvents : MonoBehaviour, IPointerEnterHandler, IPointerExi
         animator.SetBool("Hover", false);
     }
 
-    private async void closeAfterClick()
+    private void closeAfterClick()
     {
     }
 }

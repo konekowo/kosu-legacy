@@ -39,13 +39,15 @@ public class Settings : MonoBehaviour
     {
         if (cursorToggle.GetComponent<Toggle>().isOn)
         {
-            cursorObject.GetComponent<ParticleSystem>().startLifetime = 0.62f;
+            var main = cursorObject.GetComponent<ParticleSystem>().main;
+            main.startLifetime = 0.62f;
             PlayerPrefs.SetInt("CursorTrailToggle", 1);
             PlayerPrefs.Save();
         }
         else
         {
-            cursorObject.GetComponent<ParticleSystem>().startLifetime = 0.0f;
+            var main = cursorObject.GetComponent<ParticleSystem>().main;
+            main.startLifetime = 0.0f;
             PlayerPrefs.SetInt("CursorTrailToggle", 0);
             PlayerPrefs.Save();
         }
