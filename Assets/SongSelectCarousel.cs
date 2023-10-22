@@ -164,8 +164,21 @@ public class SongSelectCarousel : MonoBehaviour
         cancellationTokenSource = source;
         await UniTask.Delay(300, cancellationToken: cancellationToken);
         getAllSongsFromDatabase(searchStr: searchBar.text);
+        InvokeRepeating("scrollToTop", 0.0f, 0.001f);
     }
 
+    private void scrollToTop()
+    {
+        if (gameObject.transform.GetChild(1).GetComponent<RectTransform>().anchoredPosition.y > -100f)
+        {
+            scrollUp();
+        }
+        else
+        {
+            CancelInvoke("scrollToTop");
+        }
+    }
+    
     private void getAllSongsFromDatabase([CanBeNull] string searchStr = null)
     {
         long benchmarkStartTime = DateTimeOffset.Now.ToUnixTimeMilliseconds();
