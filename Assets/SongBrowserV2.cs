@@ -61,7 +61,7 @@ public class SongBrowserV2 : MonoBehaviour
      * Qualified = 3
      * Loved = 4
      */
-    public async void getBeatMaps(int mode = 0, int amount = 12, int offset = 0, int category = 1,
+    public async void getBeatMaps(int mode = 0, int amount = 24, int offset = 0, int category = 1,
         string searchQuery = "")
     {
         currentSearchQuery = searchQuery;
@@ -74,7 +74,7 @@ public class SongBrowserV2 : MonoBehaviour
         else
             backPageButton.interactable = false;
         mapsLoadScreen.SetActive(true);
-        var data = UnityWebRequest.Get(minoServerURL + "api/search?" + "amount=" + amount + "&" + "mode=" + mode + "&" +
+        var data = UnityWebRequest.Get(minoServerURL + "api/v2/search?" + "amount=" + amount + "&" + "mode=" + mode + "&" +
                                        "offset=" + offset + "&" + "status=" + category + "&" + "query=" + searchQuery);
         await data.SendWebRequest();
         if (data.result == UnityWebRequest.Result.Success)
@@ -94,16 +94,16 @@ public class SongBrowserV2 : MonoBehaviour
                 {
                     switch (singleProp.Name)
                     {
-                        case "Title":
+                        case "title":
                             beatmap.Title = singleProp.Value.ToString();
                             break;
-                        case "SetID":
+                        case "id":
                             beatmap.SID = singleProp.Value.ToString();
                             break;
-                        case "Artist":
+                        case "artist":
                             beatmap.Artist = singleProp.Value.ToString();
                             break;
-                        case "Creator":
+                        case "creator":
                             beatmap.Mapper = singleProp.Value.ToString();
                             break;
                     }

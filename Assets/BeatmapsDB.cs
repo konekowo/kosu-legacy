@@ -1,4 +1,6 @@
-﻿public struct BeatmapsDB
+﻿using UnityEngine;
+
+public struct BeatmapsDB
 {
     public string SID;
     public string Title;
@@ -13,7 +15,7 @@
     public string SongFolder;
     public string StarRating;
 
-    public void convert(string mapDiff)
+    public void strToObj(string mapDiff)
     {
         string[] data = mapDiff.Split("📂");
         SID = data[0];
@@ -27,5 +29,11 @@
         PreviewTime = data[8];
         OsuFile = data[9];
         SongFolder = data[10];
+    }
+
+    public string objToStr()
+    {
+        return SID + "📂" + Title + "📂" + Artist + "📂" + Mapper + "📂" + ImgDir +
+               "📂" + SongDir + "📂" + SongFileName + "📂" + Difficulty + "📂" + PreviewTime + "📂" + OsuFile + "📂" + SongFolder +"\n";
     }
 }

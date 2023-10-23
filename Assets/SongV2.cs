@@ -111,32 +111,20 @@ public class SongV2 : MonoBehaviour
 
     private void checkBeatmapAlreadyDownloaded()
     {
-        var dir = Directory.GetDirectories(Application.persistentDataPath + "/Songs/");
-        for (var i = 0; i < dir.Length; i++)
+        
+        string[] dbFile = File.ReadAllLines(Application.persistentDataPath+"/beatmaps.kosudb");
+        for (int i = 0; i < dbFile.Length; i++)
         {
-            var files = Directory.GetFiles(dir[i]);
-            for (var x = 0; x < files.Length; x++)
-                if (files[x].EndsWith(".osu"))
-                {
-                    var osuFile = File.ReadAllLines(files[x]);
-                    for (var y = 0; y < osuFile.Length; y++)
-                        if (osuFile[y].StartsWith("BeatmapSetID:"))
-                        {
-                            var SIDfromFile = osuFile[y].Split(":");
-                            if (SIDfromFile[1] == SID)
-                            {
-                                isAlreadyDownloaded = true;
-                                downloadButton.GetComponent<Image>().color = new Color(255, 218, 0);
-                                downloadButton.GetComponent<Button>().interactable = false;
-                                downloadButton.transform.GetChild(0).GetComponent<Image>().sprite = downloadedSprite;
-                                break;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                }
+            BeatmapsDB beatmapsDB = new BeatmapsDB();
+            beatmapsDB.strToObj(dbFile[i]);
+            if (beatmapsDB.SID == SID)
+            {
+                isAlreadyDownloaded = true;
+                downloadButton.GetComponent<Image>().color = new Color(255, 218, 0);
+                downloadButton.GetComponent<Button>().interactable = false;
+                downloadButton.transform.GetChild(0).GetComponent<Image>().sprite = downloadedSprite;
+                break;
+            }
         }
     }
 
@@ -147,7 +135,7 @@ public class SongV2 : MonoBehaviour
         downloadLoadingBox.SetActive(true);
 
         var path = Application.persistentDataPath + "/Songs/" + SID + " " + Artist + " - " + Title;
-        var data = UnityWebRequest.Get(minoServerURL + "d/" + SID + "n");
+        var data = UnityWebRequest.Get(minoServerURL + "d/" + SID);
         await data.SendWebRequest();
         if (data.result == UnityWebRequest.Result.Success)
         {

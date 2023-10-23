@@ -218,33 +218,12 @@ public class SongSelectCarousel : MonoBehaviour
             if ((searchStr == null? dbFile[i] : filteredArray[i]) != "")
             {
                 benchmarknumofbeatmaps++;
-                var SongID = "";
-                var SongTitle = "";
-                var SongArtist = "";
-                var SongMapper = "";
-                var imgDir = "";
-                var songDir = "";
-                var songFileName = "";
-                var difficulty = "";
-                var previewTime = "";
-                var osuFile = "";
-                var songFolder = "";
-
-                var songData = (searchStr == null? dbFile[i] : filteredArray[i].ToString()).Split("📂");
-                SongID = songData[0];
-                SongTitle = songData[1];
-                SongArtist = songData[2];
-                SongMapper = songData[3];
-                imgDir = songData[4];
-                songDir = songData[5];
-                songFileName = songData[6];
-                difficulty = songData[7];
-                previewTime = songData[8];
-                osuFile = songData[9];
-                songFolder = songData[10];
                 
-            
-            
+                // convert db string line into object
+                var songData = (searchStr == null ? dbFile[i] : filteredArray[i].ToString());
+                BeatmapsDB beatmapData = new BeatmapsDB();
+                beatmapData.strToObj(songData);
+                // make beatmap gameobject in song select carousel
                 yCount++;
                 var newSongObject = Instantiate(songObject);
                 newSongObject.GetComponent<RectTransform>()
@@ -254,11 +233,11 @@ public class SongSelectCarousel : MonoBehaviour
                 newSongObject.GetComponent<RectTransform>().anchoredPosition = new Vector2(
                     songObject.GetComponent<RectTransform>().anchoredPosition.x,
                     songObject.GetComponent<RectTransform>().anchoredPosition.y - 72 * yCount + 72);
-                newSongObject.transform.GetChild(1).GetComponent<TMP_Text>().text = SongTitle;
-                newSongObject.transform.GetChild(4).GetComponent<TMP_Text>().text = difficulty;
-                if (File.Exists(Application.persistentDataPath + "/BGS/"+ SongID + ".jpg"))
+                newSongObject.transform.GetChild(1).GetComponent<TMP_Text>().text = beatmapData.Title;
+                newSongObject.transform.GetChild(4).GetComponent<TMP_Text>().text = beatmapData.Difficulty;
+                if (File.Exists(Application.persistentDataPath + "/BGS/"+ beatmapData.SID + ".jpg"))
                 {
-                    var imgData = File.ReadAllBytes(Application.persistentDataPath + "/BGS/"+ SongID + ".jpg");
+                    var imgData = File.ReadAllBytes(Application.persistentDataPath + "/BGS/"+ beatmapData.SID + ".jpg");
                     var imageTexture = new Texture2D(2, 2);
                     imageTexture.LoadImage(imgData);
                     var sprite = Sprite.Create(imageTexture,
@@ -267,14 +246,14 @@ public class SongSelectCarousel : MonoBehaviour
                         .sprite = sprite;
                 }
 
-                newSongObject.transform.GetChild(5).name = songDir;
-                newSongObject.transform.GetChild(6).name = songFolder;
-                newSongObject.transform.GetChild(7).name = imgDir;
-                newSongObject.transform.GetChild(8).GetComponent<TMP_Text>().text = SongMapper;
-                newSongObject.transform.GetChild(9).GetComponent<TMP_Text>().text = SongArtist;
-                newSongObject.transform.GetChild(10).name = SongID;
-                newSongObject.transform.GetChild(11).name = previewTime;
-                newSongObject.transform.GetChild(12).name = songFolder;
+                newSongObject.transform.GetChild(5).name = beatmapData.SongDir;
+                newSongObject.transform.GetChild(6).name = beatmapData.SongFolder;
+                newSongObject.transform.GetChild(7).name = beatmapData.ImgDir;
+                newSongObject.transform.GetChild(8).GetComponent<TMP_Text>().text = beatmapData.Mapper;
+                newSongObject.transform.GetChild(9).GetComponent<TMP_Text>().text = beatmapData.Artist;
+                newSongObject.transform.GetChild(10).name = beatmapData.SID;
+                newSongObject.transform.GetChild(11).name = beatmapData.PreviewTime;
+                newSongObject.transform.GetChild(12).name = beatmapData.SongFolder;
                 //newSongObject.transform.position = new Vector3(newSongObject.transform.position.x, newSongObject.transform.position.y, 0f);
                 newSongObject.SetActive(true);
 
@@ -344,8 +323,19 @@ public class SongSelectCarousel : MonoBehaviour
                     if (osuFile[y].StartsWith("Title:")) SongTitle = osuFile[y].Split(":")[1];
                     if (osuFile[y].StartsWith("Artist:")) SongArtist = osuFile[y].Split(":")[1];
                     if (osuFile[y].StartsWith("Creator:")) SongMapper = osuFile[y].Split(":")[1];
+                    
                     if (osuFile[y].StartsWith("//Background and Video events"))
-                        imgDir = dir + "/" + osuFile[y + 1].Split(",")[2].Split('"')[1];
+                    {
+                        if (!osuFile[y + 1].StartsWith("Video"))
+                        {
+                            imgDir = dir + "/" + osuFile[y + 1].Split(",")[2].Split('"')[1];
+                        }
+                        else
+                        {
+                            imgDir = dir + "/" + osuFile[y + 2].Split(",")[2].Split('"')[1];
+                        }
+                    }
+
                     //Debug.Log(imgDir);
                     if (osuFile[y].StartsWith("AudioFilename"))
                     {
@@ -356,8 +346,22 @@ public class SongSelectCarousel : MonoBehaviour
                     if (osuFile[y].StartsWith("Version:")) difficulty = osuFile[y].Split(":")[1];
                     if (osuFile[y].StartsWith("PreviewTime:")) previewTime = osuFile[y].Split(":")[1];
                 }
-                textToWrite += SongID + "📂" + SongTitle + "📂" + SongArtist + "📂" + SongMapper + "📂" + imgDir +
-                               "📂" + songDir + "📂" + songFileName + "📂" + difficulty + "📂" + previewTime + "📂" + files[x] + "📂" + dir +"\n";
+
+                BeatmapsDB beatmapObj = new BeatmapsDB();
+                beatmapObj.SID = SongID;
+                beatmapObj.Title = SongTitle;
+                beatmapObj.Artist = SongArtist;
+                beatmapObj.Mapper = SongMapper;
+                beatmapObj.ImgDir = imgDir;
+                beatmapObj.SongDir = songDir;
+                beatmapObj.SongFileName = songFileName;
+                beatmapObj.Difficulty = difficulty;
+                beatmapObj.PreviewTime = previewTime;
+                beatmapObj.OsuFile = files[x];
+                beatmapObj.SongFolder = dir;
+                
+                
+                textToWrite += beatmapObj.objToStr();
 
 
                 if (lastSongID != SongID)
@@ -521,6 +525,7 @@ public class SongSelectCarousel : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        
         if (Input.GetAxisRaw("Mouse ScrollWheel") > 0 &&
             gameObject.transform.GetChild(1).GetComponent<RectTransform>().anchoredPosition.y > -37.2f)
             //wheel goes up
