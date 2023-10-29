@@ -41,7 +41,7 @@ namespace BeatmapParser
             int colorsIteration = 0;
             int hitObjectsIteration = 0;
             
-            
+            // get where all regions of the map file are
             for (int i = 0; i < rawMapData.Length; i++)
             {
                 switch (rawMapData[i])
@@ -50,26 +50,227 @@ namespace BeatmapParser
                         generalIteration = i + 1;
                         break;
                     case "[Editor]":
-                        generalIteration = i + 1;
+                        editorIteration = i + 1;
                         break;
                     case "[Metadata]":
-                        generalIteration = i + 1;
+                        metadataIteration = i + 1;
                         break;
                     case "[Events]":
-                        generalIteration = i + 1;
+                        eventIteration = i + 1;
                         break;
                     case "[TimingPoints]":
-                        generalIteration = i + 1;
+                        timingPointsIteration = i + 1;
                         break;
                     case "[Colours]":
-                        generalIteration = i + 1;
+                        colorsIteration = i + 1;
                         break;
                     case "[HitObjects]":
-                        generalIteration = i + 1;
+                        hitObjectsIteration = i + 1;
                         break;
-                    
                 }
             }
+            #region [General]
+                for (int i = generalIteration; i < rawMapData.Length; i++)
+                {
+                    if (rawMapData[i] == "")
+                    {
+                        break;
+                    }
+
+                    if (rawMapData[i].StartsWith("AudioFilename:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.AudioFilename = split[1];
+                    }
+                    if (rawMapData[i].StartsWith("AudioLeadIn:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.AudioLeadIn = int.Parse(split[1]);
+                    }
+                    if (rawMapData[i].StartsWith("AudioHash:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.AudioHash = split[1];
+                    }
+                    if (rawMapData[i].StartsWith("Countdown:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.Countdown = int.Parse(split[1]);
+                    }
+                    if (rawMapData[i].StartsWith("SampleSet:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.SampleSet = split[1];
+                    }
+                    if (rawMapData[i].StartsWith("StackLeniency:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.StackLeniency = float.Parse(split[1]);
+                    }
+                    if (rawMapData[i].StartsWith("Mode:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0":
+                                parsedData.Mode = OsuMode.Standard;
+                                break;
+                            default:
+                                throw new BeatMapIsWrongMode(
+                                    "BeatMap is in the wrong mode. The only mode supported by kosu! is Standard. Mode on beatmap " +
+                                    "(0 = Standard, 1 = osu!taiko, 2 = osu!catch, 3 = osu!mania): " +
+                                    split[1]);
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("LetterboxInBreaks:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.LetterboxInBreaks = false;
+                                break;
+                            case "1":
+                                parsedData.LetterboxInBreaks = true;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("StoryFireInFront:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.StoryFireInFront = false;
+                                break;
+                            case "1":
+                                parsedData.StoryFireInFront = true;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("UseSkinSprites:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.UseSkinSprites = false;
+                                break;
+                            case "1":
+                                parsedData.UseSkinSprites = true;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("AlwaysShowPlayfield:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.AlwaysShowPlayfield = false;
+                                break;
+                            case "1":
+                                parsedData.AlwaysShowPlayfield = true;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("OverlayPosition:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "NoChange":
+                                parsedData.OverlayPosition = OverlayPos.NoChange;
+                                break;
+                            case "Below":
+                                parsedData.OverlayPosition = OverlayPos.Below;
+                                break;
+                            case "Above":
+                                parsedData.OverlayPosition = OverlayPos.Above;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("SkinPreference:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.SkinPreference = split[1];
+                    }
+                    if (rawMapData[i].StartsWith("EpilepsyWarning:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.EpilepsyWarning = false;
+                                break;
+                            case "1":
+                                parsedData.EpilepsyWarning = true;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("CountdownOffset:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        parsedData.CountdownOffset = int.Parse(split[1]);
+                    }
+                    if (rawMapData[i].StartsWith("SpecialStyle:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.SpecialStyle = false;
+                                break;
+                            case "1":
+                                parsedData.SpecialStyle = true;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("WidescreenStoryboard:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.WidescreenStoryboard = false;
+                                break;
+                            case "1":
+                                parsedData.WidescreenStoryboard = true;
+                                break;
+                        }
+                    }
+                    if (rawMapData[i].StartsWith("SamplesMatchPlaybackRate:"))
+                    {
+                        string[] split = rawMapData[i].Split(": ");
+                        switch (split[1])
+                        {
+                            case "0" :
+                                parsedData.SamplesMatchPlaybackRate = false;
+                                break;
+                            case "1":
+                                parsedData.SamplesMatchPlaybackRate = true;
+                                break;
+                        }
+                    }
+                }
+            #endregion
+            #region [Editor]
+                for (int i = editorIteration; i < rawMapData.Length; i++)
+                {
+                    if (rawMapData[i] == "")
+                    {
+                        break;
+                    }
+
+                    if (rawMapData[i].StartsWith("Bookmarks:"))
+                    {
+                        
+                    }
+                }
+            #endregion
+            
+            
+            
             
             
         }

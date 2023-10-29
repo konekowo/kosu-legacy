@@ -27,7 +27,7 @@ namespace BeatmapParser
             /// <summary>
             /// Location of the audio file relative to the current folder.
             /// </summary>
-            public string AudioFileName;
+            public string AudioFilename;
             /// <summary>
             /// Milliseconds of silence before the audio starts playing.
             /// </summary>
@@ -81,7 +81,7 @@ namespace BeatmapParser
             /// <summary>
             /// Time in beats that the countdown starts before the first hit object
             /// </summary>
-            public int CountDownOffset = 0;
+            public int CountdownOffset = 0;
             /// <summary>
             /// Whether or not the "N+1" style key layout is used for osu!mania
             /// </summary>
