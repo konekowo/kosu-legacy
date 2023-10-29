@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using BeatmapParser.HitObjData;
+using UnityEngine;
 
 namespace BeatmapParser
 {
@@ -95,6 +98,7 @@ namespace BeatmapParser
         #endregion
 
         #region [Editor]
+        
             /// <summary>
             /// Time in milliseconds of bookmarks
             /// </summary>
@@ -118,8 +122,124 @@ namespace BeatmapParser
 
         #endregion
 
+        #region [Metadata]
+        
+            /// <summary>
+            /// Romanised song title
+            /// </summary>
+            public string Title;
+            /// <summary>
+            /// Song title
+            /// </summary>
+            public string TitleUnicode;
+            /// <summary>
+            /// Romanised song artist
+            /// </summary>
+            public string Artist;
+            /// <summary>
+            /// Song artist
+            /// </summary>
+            public string ArtistUnicode;
+            /// <summary>
+            /// Beatmap creator/mapper
+            /// </summary>
+            public string Creator;
+            /// <summary>
+            /// Difficulty name
+            /// </summary>
+            public string Version;
+            /// <summary>
+            /// Original media the song was produced for
+            /// </summary>
+            public string Source;
+            /// <summary>
+            /// Search terms
+            /// </summary>
+            public ArrayList Tags;
+            /// <summary>
+            /// Difficulty ID
+            /// </summary>
+            public string BeatmapID;
+            /// <summary>
+            /// Beatmap ID
+            /// </summary>
+            public string BeatmapSetID;
 
+        #endregion
 
+        #region [Events]
+        
+            /// <summary>
+            /// The name of the background image file
+            /// </summary>
+            public string BackgroundImageName;
+            /// <summary>
+            /// The name of the background video file
+            /// </summary>
+            public string BackgroundVideoName;
+            
+            // Storyboards are not supported by kosu! at the moment.
 
+        #endregion
+
+        #region [TimingPoints]
+            
+            public List<TimingPoint> TimingPoints;
+
+        #endregion
+        
+        #region [Colours]
+        
+            /// <summary>
+            /// Additive combo colours
+            /// </summary>
+            public List<ComboColor> ComboColors;
+            /// <summary>
+            /// Additive slider track colour
+            /// </summary>
+            public Color SliderTrackOverride;
+            /// <summary>
+            /// Slider border colour
+            /// </summary>
+            public Color SliderBorder;
+
+        #endregion
+
+        #region [HitObjects]
+
+            public List<HitCircleData> HitCircles = new List<HitCircleData>();
+            public List<SliderData> Sliders = new List<SliderData>();
+            public List<SpinnerData> Spinners = new List<SpinnerData>();
+
+        #endregion
+
+    }
+
+    public struct ComboColor
+    {
+        public int ComboNumber;
+        public Color color;
+    }
+
+    public class TimingPoint
+    {
+        public int time;
+        public float beatLength;
+        public int meter;
+        public int sampleSet;
+        public int volume;
+        public bool uninherited;
+        public int effects;
+        public TimingPoint(int time, float beatLength, int meter, int sampleSet, int volume, bool uninherited,
+            int effects)
+        {
+            this.time = time;
+            this.beatLength = beatLength;
+            this.meter = meter;
+            this.sampleSet = sampleSet;
+            this.volume = volume;
+            this.uninherited = uninherited;
+            this.effects = effects;
+        }
     }
 }
