@@ -1,17 +1,26 @@
 ﻿using System;
+using System.Collections;
 
 namespace BeatmapParser
 {
     public enum OsuMode
     {
-        Standard = 0,
-        Taiko = 1,
-        Catch = 2,
-        Mania = 3
+        Standard,
+        Taiko,
+        Catch,
+        Mania
+    }
+
+    public enum OverlayPos
+    {
+        NoChange,
+        Below,
+        Above
     }
     public class BeatmapData
     {
         #region [General]
+        
             /// <summary>
             /// Location of the audio file relative to the current folder.
             /// </summary>
@@ -47,9 +56,67 @@ namespace BeatmapParser
             /// </summary>
             public bool LetterboxInBreaks = false;
             [Obsolete("Deprecated according to https://osu.ppy.sh/wiki/en/Client/File_formats/osu_%28file_format%29")]
-            public bool StoryFireInFront = false;
+            public bool StoryFireInFront = true;
+            /// <summary>
+            /// Whether or not the storyboard can use the user's skin images.
+            /// </summary>
+            public bool UseSkinSprites = false;
+            [Obsolete("Deprecated according to https://osu.ppy.sh/wiki/en/Client/File_formats/osu_%28file_format%29")]
+            public bool AlwaysShowPlayfield = false;
+            /// <summary>
+            /// Draw order of hit circle overlays compared to hit numbers (NoChange = use skin setting, Below = draw overlays under numbers, Above = draw overlays on top of numbers)
+            /// </summary>
+            public OverlayPos OverlayPosition = OverlayPos.NoChange;
+            /// <summary>
+            /// Preferred skin to use during gameplay
+            /// </summary>
+            public string SkinPreference;
+            /// <summary>
+            /// Whether or not a warning about flashing colours should be shown at the beginning of the map
+            /// </summary>
+            public bool EpilepsyWarning = false;
+            /// <summary>
+            /// Time in beats that the countdown starts before the first hit object
+            /// </summary>
+            public int CountDownOffset = 0;
+            /// <summary>
+            /// Whether or not the "N+1" style key layout is used for osu!mania
+            /// </summary>
+            public bool SpecialStyle = false;
+            /// <summary>
+            /// Whether or not the storyboard allows widescreen viewing
+            /// </summary>
+            public bool WidescreenStoryboard = false;
+            /// <summary>
+            /// Whether or not sound samples will change rate when playing with speed-changing mods
+            /// </summary>
+            public bool SamplesMatchPlaybackRate = false;
 
-            #endregion
+        #endregion
+
+        #region [Editor]
+            /// <summary>
+            /// Time in milliseconds of bookmarks
+            /// </summary>
+            public ArrayList Bookmarks = new ArrayList();
+            /// <summary>
+            /// Distance snap multiplier
+            /// </summary>
+            public float DistanceSpacing;
+            /// <summary>
+            /// Beat snap divisor
+            /// </summary>
+            public int BeatDivisor;
+            /// <summary>
+            /// Grid size
+            /// </summary>
+            public int GridSize;
+            /// <summary>
+            /// Scale factor for the object timeline
+            /// </summary>
+            public float TimelineZoom;
+
+        #endregion
 
 
 
