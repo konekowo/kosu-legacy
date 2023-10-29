@@ -999,7 +999,7 @@ namespace ERP.Discord
         public void RunCallbacks()
         {
             var res = Methods.RunCallbacks(MethodsPtr);
-            if (res != Result.Ok) throw new ResultException(res);
+            if (res != Result.Ok) ; //throw new ResultException(res);
         }
 
         [MonoPInvokeCallback]
