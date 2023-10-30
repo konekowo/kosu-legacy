@@ -102,7 +102,7 @@ namespace BeatmapParser
             /// <summary>
             /// Time in milliseconds of bookmarks
             /// </summary>
-            public ArrayList Bookmarks = new ArrayList();
+            public string[] Bookmarks;
             /// <summary>
             /// Distance snap multiplier
             /// </summary>
@@ -155,16 +155,45 @@ namespace BeatmapParser
             /// <summary>
             /// Search terms
             /// </summary>
-            public ArrayList Tags;
+            public string[] Tags;
             /// <summary>
             /// Difficulty ID
             /// </summary>
-            public string BeatmapID;
+            public int BeatmapID;
             /// <summary>
             /// Beatmap ID
             /// </summary>
-            public string BeatmapSetID;
+            public int BeatmapSetID;
 
+        #endregion
+
+        #region [Difficulty]
+        
+            /// <summary>
+            /// HP setting (0–10)
+            /// </summary>
+            public float HPDrainRate;
+            /// <summary>
+            /// CS setting (0–10)
+            /// </summary>
+            public float CircleSize;
+            /// <summary>
+            /// OD setting (0–10)
+            /// </summary>
+            public float OverallDifficulty;
+            /// <summary>
+            /// AR setting (0–10)
+            /// </summary>
+            public float ApproachRate;
+            /// <summary>
+            /// Base slider velocity in hundreds of osu! pixels per beat
+            /// </summary>
+            public float SliderMultiplier;
+            /// <summary>
+            /// Amount of slider ticks per beat
+            /// </summary>
+            public float SliderTickRate;
+            
         #endregion
 
         #region [Events]
@@ -177,6 +206,10 @@ namespace BeatmapParser
             /// The name of the background video file
             /// </summary>
             public string BackgroundVideoName;
+            /// <summary>
+            /// The start time of the video
+            /// </summary>
+            public string BackgroundVideoStartTime;
             
             // Storyboards are not supported by kosu! at the moment.
 
@@ -227,16 +260,19 @@ namespace BeatmapParser
         public float beatLength;
         public int meter;
         public int sampleSet;
+        public int sampleIndex;
         public int volume;
         public bool uninherited;
         public int effects;
-        public TimingPoint(int time, float beatLength, int meter, int sampleSet, int volume, bool uninherited,
+        public TimingPoint(int time, float beatLength, int meter, int sampleSet, int sampleIndex, int volume, bool uninherited,
             int effects)
         {
             this.time = time;
             this.beatLength = beatLength;
             this.meter = meter;
             this.sampleSet = sampleSet;
+            this.sampleIndex = sampleIndex;
+            this.sampleIndex = sampleIndex;
             this.volume = volume;
             this.uninherited = uninherited;
             this.effects = effects;

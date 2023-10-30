@@ -18,6 +18,6 @@ namespace BeatmapParser.HitObjData
         public int slides;
         public float length;
         public List<int> edgeSounds = new List<int>();
-        public List<string> edgeSets;
+        public string[] edgeSets;
     }
 }
