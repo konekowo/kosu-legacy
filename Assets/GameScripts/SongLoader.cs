@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEditor;
 using System;
+using BeatmapParser;
 using Cysharp.Threading.Tasks;
 using UnityEngine.U2D;
 
@@ -42,7 +43,7 @@ public class SongLoader : MonoBehaviour
     [Header("Other Stuff (Do not edit)")] public string correctOsuFile = "";
     public int comboCounter = 1;
     public string currentTimingPoint = "";
-    public List<string> allTimingPoints = new();
+    //public List<string> allTimingPoints = new();
     public long startTime;
     public float sliderMultiplier;
 
@@ -56,6 +57,8 @@ public class SongLoader : MonoBehaviour
 
     public bool startSongButtonHasBeenClicked = false;
 
+    public BeatmapData beatmapData;
+    
     private void Start()
     {
 #if !UNITY_EDITOR
@@ -88,35 +91,10 @@ public class SongLoader : MonoBehaviour
 
     private void readOsuFile(string filePath, string songFolderPath)
     {
-        var songLines = File.ReadAllLines(filePath);
-        var songFilePath = "";
-        var HitObjectsLine = 0;
-        var ApproachRate = 0.0f;
-        var CircleSize = 2.0f;
-        var timingPointsLine = 0;
-
-        for (var i = 0; i < songLines.Length; i++)
-        {
-            if (songLines[i].StartsWith("AudioFilename: "))
-                songFilePath = songFolderPath + "/" + songLines[i].Split(": ")[1];
-            if (songLines[i].StartsWith("ApproachRate:")) ApproachRate = float.Parse(songLines[i].Split(":")[1]);
-            if (songLines[i].StartsWith("CircleSize:")) CircleSize = float.Parse(songLines[i].Split(":")[1]);
-            if (songLines[i].StartsWith("SliderMultiplier:"))
-                sliderMultiplier = float.Parse(songLines[i].Split(":")[1]);
-            if (songLines[i].StartsWith("[TimingPoints]")) timingPointsLine = i;
-
-            if (songLines[i].StartsWith("[HitObjects]"))
-                // skip to [HitObjects]
-                HitObjectsLine = i;
-        }
-
-        for (var i = timingPointsLine + 1; i < songLines.Length; i++)
-        {
-            if (songLines[i] == "")
-                // end of timings
-                break;
-            allTimingPoints.Add(songLines[i]);
-        }
+        //var songLines = File.ReadAllLines(filePath);
+        beatmapData = new BeatmapParser.BeatmapParser(filePath).GetParsedData();
+        string songFilePath = songFolderPath + "/" + beatmapData.AudioFilename;
+        
 
 
 #if UNITY_EDITOR
@@ -141,7 +119,7 @@ public class SongLoader : MonoBehaviour
                 msBeforeObjectHit = 1200;
             else if (ApproachRate > 5.0f) msBeforeObjectHit = Mathf.RoundToInt(1200 - 750 * (ApproachRate - 5) / 5);
             //Debug.Log(songLines[i]);
-            var line = songLines[i].Split(",");
+            //var line = songLines[i].Split(",");
             // ---------- Hit Circle -----------
             if (line.Length == 6)
             {
@@ -193,8 +171,8 @@ public class SongLoader : MonoBehaviour
                     // use hit object for the slider's head
                     var newSliderHitObject = Instantiate(hitSlider);
 
-                    newSliderHitObject.GetComponent<HitCircleSlider>().ApproachRate = ApproachRate;
-                    newSliderHitObject.GetComponent<HitCircleSlider>().CircleSize = CircleSize;
+                    newSliderHitObject.GetComponent<HitCircleSlider>().ApproachRate = beatmapData.ApproachRate;
+                    newSliderHitObject.GetComponent<HitCircleSlider>().CircleSize = beatmapData.CircleSize;
                     newSliderHitObject.GetComponent<HitCircleSlider>().hitObjectLine = songLines[i];
 
                     for (var x = 0; x < 1000; x++)
@@ -236,7 +214,7 @@ public class SongLoader : MonoBehaviour
                     // draw slider body
                     var point = sliderInfo[1].Split(':');
                     // convert the x, y coordinates so it's not mirrored or something.
-                    Debug.Log(songLines[i]);
+                    //Debug.Log(songLines[i]);
 
                     var pointX = float.Parse(point[0]) / divideAmmount - 5.2f;
                     var pointY = 0 - (float.Parse(point[1]) / divideAmmount - 4f);

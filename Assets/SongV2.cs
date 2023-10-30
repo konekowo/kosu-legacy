@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using TMPro;
 using Unity.SharpZipLib.Utils;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -146,7 +147,7 @@ public class SongV2 : MonoBehaviour
             try
             {
                 Debug.Log("Path: "+ path);
-                Debug.Log("URL: "+ minoServerURL + "d/" + SID + "n");
+                Debug.Log("URL: "+ minoServerURL + "d/" + SID);
                 File.WriteAllBytes(path + ".zip", results);
                 Debug.Log("Downloaded Beatmap, uncompressing...");
                 ZipUtility.UncompressFromZip(path + ".zip", null, path);
@@ -217,9 +218,44 @@ public class SongV2 : MonoBehaviour
                         }
                 }
                 
+                
                 // Process beatmap
-                string textToWrite = File.ReadAllText(Application.persistentDataPath + "/beatmaps.kosudb") + SongSelectCarousel.processFolder(path);
-                File.WriteAllText(Application.persistentDataPath + "/beatmaps.kosudb", textToWrite);
+                
+                // check if beatmap is in correct format
+                string[] files = Directory.GetFiles(path);
+                bool wrongFormat = false;
+                for (int i = 0; i < files.Length; i++)
+                {
+                    if (files[i].EndsWith(".osu"))
+                    {
+                        if (!File.ReadAllLines(files[i])[0].StartsWith("osu file format v14") && !File.ReadAllLines(files[i])[0].StartsWith("osu file format v13")
+                            && !File.ReadAllLines(files[i])[0].StartsWith("osu file format v12"))
+                        {
+                            Debug.LogError("Beatmap is not in correct format, deleting!");
+                            var newErrorScreen = Instantiate(errorScreen, errorScreen.transform.parent, false);
+                            var errorScreenObj = newErrorScreen.GetComponent<SongBrowserError>();
+                            errorScreenObj.setContent("Beatmap SID: " + SID + "\n" + "The BeatMap is not in the correct format. Deleting BeatMap!");
+                            errorScreenObj.setTitle("Error when processing beatmap");
+                            errorScreenObj.show();
+                            wrongFormat = true;
+                        }
+                    }
+                    if (wrongFormat)
+                    {
+                        File.Delete(files[i]);
+                    }
+                }
+
+                if (!wrongFormat)
+                {
+                    string textToWrite = File.ReadAllText(Application.persistentDataPath + "/beatmaps.kosudb") + SongSelectCarousel.processFolder(path);
+                    File.WriteAllText(Application.persistentDataPath + "/beatmaps.kosudb", textToWrite);
+                }
+                else
+                {
+                    Directory.Delete(path);
+                }
+                
                 
 
             }

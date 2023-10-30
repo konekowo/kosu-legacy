@@ -16,6 +16,8 @@ using System.Runtime.InteropServices;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using JetBrains.Annotations;
+using BeatmapParser;
+using BeatmapParser.Exceptions;
 
 public class SongSelectCarousel : MonoBehaviour
 {
@@ -304,59 +306,42 @@ public class SongSelectCarousel : MonoBehaviour
         string lastSongID = "";
         for (var x = 0; x < files.Length; x++)
         {
-            var SongID = "";
-            var SongTitle = "";
-            var SongArtist = "";
-            var SongMapper = "";
-            var imgDir = "";
-            var songDir = "";
-            var songFileName = "";
-            var difficulty = "";
-            var previewTime = "";
-
+            
             if (files[x].EndsWith(".osu"))
             {
-                var osuFile = File.ReadAllLines(files[x]);
-                for (var y = 0; y < osuFile.Length; y++)
+                BeatmapParser.BeatmapParser parser;
+                try
                 {
-                    if (osuFile[y].StartsWith("BeatmapSetID:")) SongID = osuFile[y].Split(":")[1];
-                    if (osuFile[y].StartsWith("Title:")) SongTitle = osuFile[y].Split(":")[1];
-                    if (osuFile[y].StartsWith("Artist:")) SongArtist = osuFile[y].Split(":")[1];
-                    if (osuFile[y].StartsWith("Creator:")) SongMapper = osuFile[y].Split(":")[1];
-                    
-                    if (osuFile[y].StartsWith("//Background and Video events"))
-                    {
-                        if (!osuFile[y + 1].StartsWith("Video"))
-                        {
-                            imgDir = dir + "/" + osuFile[y + 1].Split(",")[2].Split('"')[1];
-                        }
-                        else
-                        {
-                            imgDir = dir + "/" + osuFile[y + 2].Split(",")[2].Split('"')[1];
-                        }
-                    }
-
-                    //Debug.Log(imgDir);
-                    if (osuFile[y].StartsWith("AudioFilename"))
-                    {
-                        songDir = dir + "/" + osuFile[y].Split(": ")[1];
-                        songFileName = osuFile[y].Split(": ")[1];
-                    }
-
-                    if (osuFile[y].StartsWith("Version:")) difficulty = osuFile[y].Split(":")[1];
-                    if (osuFile[y].StartsWith("PreviewTime:")) previewTime = osuFile[y].Split(":")[1];
+                    parser = new BeatmapParser.BeatmapParser(files[x]);
                 }
-
+                catch (BeatMapNotSupportedException e)
+                {
+                    Debug.LogError("Beatmap file not supported, skipping! Error: " + e.Message);
+                    continue;
+                }
+                catch (BeatMapIsWrongMode e)
+                {
+                    Debug.LogError("Beatmap file not supported, skipping! Error: " + e.Message);
+                    continue;
+                }
+                catch (FileNotFoundException e)
+                {
+                    Debug.LogError("Beatmap file not found, skipping! Error: " + e.Message);
+                    continue;
+                }
+                
+                BeatmapData beatmapData = parser.GetParsedData();
+                
                 BeatmapsDB beatmapObj = new BeatmapsDB();
-                beatmapObj.SID = SongID;
-                beatmapObj.Title = SongTitle;
-                beatmapObj.Artist = SongArtist;
-                beatmapObj.Mapper = SongMapper;
-                beatmapObj.ImgDir = imgDir;
-                beatmapObj.SongDir = songDir;
-                beatmapObj.SongFileName = songFileName;
-                beatmapObj.Difficulty = difficulty;
-                beatmapObj.PreviewTime = previewTime;
+                beatmapObj.SID = beatmapData.BeatmapSetID.ToString();
+                beatmapObj.Title = beatmapData.Title;
+                beatmapObj.Artist = beatmapData.Artist;
+                beatmapObj.Mapper = beatmapData.Creator;
+                beatmapObj.ImgDir = dir + "/" + beatmapData.BackgroundImageName;
+                beatmapObj.SongDir = dir + "/" + beatmapData.AudioFilename;
+                beatmapObj.SongFileName = beatmapData.AudioFilename;
+                beatmapObj.Difficulty = beatmapData.Version;
+                beatmapObj.PreviewTime = beatmapData.PreviewTime.ToString();
                 beatmapObj.OsuFile = files[x];
                 beatmapObj.SongFolder = dir;
                 
@@ -364,20 +349,21 @@ public class SongSelectCarousel : MonoBehaviour
                 textToWrite += beatmapObj.objToStr();
 
 
-                if (lastSongID != SongID)
+                if (lastSongID != beatmapData.BeatmapSetID.ToString())
                 {
-                    byte[] imgData = File.ReadAllBytes(imgDir);
+                    //Debug.Log(dir + "/" + beatmapData.BackgroundImageName);
+                    byte[] imgData = File.ReadAllBytes(dir + "/" + beatmapData.BackgroundImageName);
                     Texture2D image = new Texture2D(2, 2);
                     image.LoadImage(imgData);
                     Texture2D resizedImg = new Texture2D(200, 150);
                     Bilinear(image, 200, 150, resizedImg);
                     byte[] resizedImgData = resizedImg.EncodeToJPG();
-                    File.WriteAllBytes(Application.persistentDataPath + "/BGS/"+SongID+".jpg", resizedImgData);
+                    File.WriteAllBytes(Application.persistentDataPath + "/BGS/"+beatmapData.BeatmapSetID+".jpg", resizedImgData);
                 }
                 
                 
                 // all code has to be before this line!
-                lastSongID = SongID;
+                lastSongID = beatmapData.BeatmapSetID.ToString();
 
             }
 

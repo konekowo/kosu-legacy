@@ -217,7 +217,7 @@ namespace BeatmapParser
 
         #region [TimingPoints]
             
-            public List<TimingPoint> TimingPoints;
+            public List<TimingPoint> TimingPoints = new List<TimingPoint>();
 
         #endregion
         
@@ -226,7 +226,7 @@ namespace BeatmapParser
             /// <summary>
             /// Additive combo colours
             /// </summary>
-            public List<ComboColor> ComboColors;
+            public List<ComboColor> ComboColors = new List<ComboColor>();
             /// <summary>
             /// Additive slider track colour
             /// </summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using BeatmapParser.Exceptions;
 using BeatmapParser.HitObjData;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -30,7 +31,8 @@ namespace BeatmapParser
             
             string[] rawMapData = File.ReadAllLines(mapLocation);
             // throw error if map file is in wrong format version
-            if (!rawMapData[0].StartsWith("osu file format v14"))
+            if (!rawMapData[0].StartsWith("osu file format v14") && !rawMapData[0].StartsWith("osu file format v13") 
+                                                                 && !rawMapData[0].StartsWith("osu file format v12"))
             {
                 throw new BeatMapNotSupportedException("This BeatMap's format ("+rawMapData[0]+") is not supported. ");
             }
@@ -409,18 +411,25 @@ namespace BeatmapParser
                         if (weird)
                         {
                             string[] split0 = rawMapData[i+1].Split(",");
-                            parsedData.BackgroundVideoName = split0[2];
+                            parsedData.BackgroundVideoName = split0[2].Split('"')[1];
                             parsedData.BackgroundVideoStartTime = split0[1];
                             string[] split1 = rawMapData[i+2].Split(",");
-                            parsedData.BackgroundImageName = split1[2];
+                            parsedData.BackgroundImageName = split1[2].Split('"')[1];
                         }
                         else
                         {
-                            string[] split0 = rawMapData[i+2].Split(",");
-                            parsedData.BackgroundVideoName = split0[2];
-                            parsedData.BackgroundVideoStartTime = split0[1];
+                            if (rawMapData[i + 2].StartsWith("Video"))
+                            {
+                                string[] split0 = rawMapData[i+2].Split(",");
+                                parsedData.BackgroundVideoName = split0[2].Split('"')[1];
+                                parsedData.BackgroundVideoStartTime = split0[1];
+                            }
                             string[] split1 = rawMapData[i+1].Split(",");
-                            parsedData.BackgroundImageName = split1[2];
+                            parsedData.BackgroundImageName = split1[2].Split('"')[1];
+
+
+
+
                         }
                     }
                 }
@@ -482,11 +491,14 @@ namespace BeatmapParser
                             int.Parse(split[1]));
                         hitCircleData.time = int.Parse(split[2]);
                         hitCircleData.hitSound = int.Parse(split[4]);
-                        string[] hitSampleRaw = split[6].Split(":");
+                        string[] hitSampleRaw = split[5].Split(":");
                         List<int> hitSample = new List<int>();
                         for (int x = 0; x < hitSampleRaw.Length; x++)
                         {
-                            hitSample.Add(int.Parse(hitSampleRaw[i]));
+                            if (hitSampleRaw[x] != "")
+                            {
+                                hitSample.Add(int.Parse(hitSampleRaw[x]));
+                            }
                         }
                         hitCircleData.hitSample = hitSample;
                         hitCircleData.newCombo = split[3] == "2";
@@ -511,7 +523,10 @@ namespace BeatmapParser
                         List<int> hitSample = new List<int>();
                         for (int x = 0; x < hitSampleRaw.Length; x++)
                         {
-                            hitSample.Add(int.Parse(hitSampleRaw[i]));
+                            if (hitSampleRaw[x] != "")
+                            {
+                                hitSample.Add(int.Parse(hitSampleRaw[x]));
+                            }
                         }
                         hitSliderData.hitSample = hitSample;
 
@@ -540,7 +555,7 @@ namespace BeatmapParser
                         }
 
                         hitSliderData.slides = int.Parse(split[6]);
-                        hitSliderData.length = int.Parse(split[7]);
+                        hitSliderData.length = float.Parse(split[7]);
                         string[] edgeSounds = split[8].Split("|");
                         for (int x = 0; x < edgeSounds.Length; x++)
                         {
@@ -569,7 +584,10 @@ namespace BeatmapParser
                         List<int> hitSample = new List<int>();
                         for (int x = 0; x < hitSampleRaw.Length; x++)
                         {
-                            hitSample.Add(int.Parse(hitSampleRaw[i]));
+                            if (hitSampleRaw[x] != "")
+                            {
+                                hitSample.Add(int.Parse(hitSampleRaw[x]));
+                            }
                         }
                         spinnerData.hitSample = hitSample;
                         spinnerData.newCombo = split[3] == "2";
