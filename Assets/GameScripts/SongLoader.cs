@@ -97,7 +97,7 @@ public class SongLoader : MonoBehaviour
         
 
 
-#if UNITY_EDITOR
+#if UNITY_EDITOR || !UNITY_WEBGL
         StartCoroutine(getSongPCOnly(songFilePath));
 #endif
 
