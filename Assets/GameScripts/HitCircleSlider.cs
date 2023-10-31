@@ -98,55 +98,10 @@ public class HitCircleSlider : MonoBehaviour
     private async void disableCircle()
     {
         for (var i = 0; i < 10; i++) gameObject.transform.GetChild(i).gameObject.SetActive(false);
-
-
-        var slides = int.Parse(hitObjectLine.Split(',')[6]);
-        var sliderTime = 0f;
-        if (songLoader.currentTimingPoint != "")
-        {
-            var timingPoint = songLoader.currentTimingPoint.Split(',');
-            var splitHitObjectLine = hitObjectLine.Split(',');
-            var beatLength = float.Parse(timingPoint[1]);
-            var pixelLength = float.Parse(splitHitObjectLine[7]);
-            // i have no idea if this is correct, i copied this formula from the javascript pixi.js webosu.
-            sliderTime = Mathf.Abs(beatLength * (pixelLength / songLoader.sliderMultiplier) / 100) * 10 * slides;
-        }
-        else
-        {
-            var splitHitObjectLine = hitObjectLine.Split(',');
-            var pixelLength = float.Parse(splitHitObjectLine[7]);
-            // i have no idea if this is correct, i copied this formula from the javascript pixi.js webosu, 
-            // and the osu website told me to plug in 1 for SV if there is no inherited timing point but since SV isnt in this formula, I just plugged it into beatLength.
-            sliderTime = Mathf.Abs(1 * (pixelLength / songLoader.sliderMultiplier) / 100) * 10 * slides;
-        }
-
-        sliderFollow.SetActive(true);
-        endpos = new Vector3(gameObject.GetComponent<HitSlider>().xPos, gameObject.GetComponent<HitSlider>().yPos,
-            gameObject.GetComponent<HitSlider>().zPos);
-        distance = Vector2.Distance(gameObject.transform.position, endpos);
-        speed = distance / sliderTime;
-        startpos = gameObject.transform.position;
-        Debug.Log("Distance: " + distance + ", Speed: " + speed + ", Time: " + sliderTime);
-        InvokeRepeating("moveSliderFollow", 0f, 0.001f);
-        await UniTask.Delay(Mathf.RoundToInt(sliderTime));
-        CancelInvoke("moveSliderFollow");
+        
         gameObject.SetActive(false);
     }
 
-    private void moveSliderFollow()
-    {
-        t += Time.deltaTime * (speed * 1000); // Increment t based on time and speed.
-
-        // Use Mathf.Clamp01 to ensure t stays between 0 and 1.
-        t = Mathf.Clamp01(t);
-
-        // Calculate the new position using Lerp (linear interpolation) between startPoint and endPoint based on t.
-        var newPosition = Vector3.Lerp(startpos, endpos, t);
-        //Debug.Log(newPosition.x + ", " + newPosition.y + ", " + newPosition.z);
-
-        // Update the GameObject's position to the new position.
-        transform.position = newPosition;
-    }
 
     // Update is called once per frame
     private void Update()

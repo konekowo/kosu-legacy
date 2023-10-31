@@ -8,6 +8,7 @@ using UnityEngine.Networking;
 using UnityEditor;
 using System;
 using BeatmapParser;
+using BeatmapParser.HitObjData;
 using Cysharp.Threading.Tasks;
 using UnityEngine.U2D;
 
@@ -42,7 +43,7 @@ public class SongLoader : MonoBehaviour
     public string testMapDir;
     [Header("Other Stuff (Do not edit)")] public string correctOsuFile = "";
     public int comboCounter = 1;
-    public string currentTimingPoint = "";
+    public TimingPoint currentTimingPoint = null;
     //public List<string> allTimingPoints = new();
     public long startTime;
     public float sliderMultiplier;
@@ -91,43 +92,42 @@ public class SongLoader : MonoBehaviour
 
     private void readOsuFile(string filePath, string songFolderPath)
     {
-        //var songLines = File.ReadAllLines(filePath);
         beatmapData = new BeatmapParser.BeatmapParser(filePath).GetParsedData();
         string songFilePath = songFolderPath + "/" + beatmapData.AudioFilename;
         
 
+        // load audio
+        #if UNITY_EDITOR || !UNITY_WEBGL
+                StartCoroutine(getSongPCOnly(songFilePath));
+        #endif
 
-#if UNITY_EDITOR || !UNITY_WEBGL
-        StartCoroutine(getSongPCOnly(songFilePath));
-#endif
+        #if UNITY_WEBGL && !UNITY_EDITOR
+                byte[] audioData = File.ReadAllBytes(songFilePath);
+                string base64EncodedAudio = Convert.ToBase64String(audioData);
+                audioMakeBlob(base64EncodedAudio, 0, gameObject.name, false);
+                audioPlay(base64EncodedAudio);
 
-#if UNITY_WEBGL && !UNITY_EDITOR
-        byte[] audioData = File.ReadAllBytes(songFilePath);
-        string base64EncodedAudio = Convert.ToBase64String(audioData);
-        audioMakeBlob(base64EncodedAudio, 0, gameObject.name, false);
-        audioPlay(base64EncodedAudio);
-
-#endif
+        #endif
+        
+        
         var zPos = 14.0f;
-        for (var i = HitObjectsLine + 1; i < songLines.Length; i++)
+        
+        var msBeforeObjectHit = 0;
+        if (beatmapData.ApproachRate < 5.0f)
+            msBeforeObjectHit = Mathf.RoundToInt(1200 + 600 * (5 - beatmapData.ApproachRate) / 5);
+        else if (beatmapData.ApproachRate == 5.0f)
+            msBeforeObjectHit = 1200;
+        else if (beatmapData.ApproachRate > 5.0f) msBeforeObjectHit = Mathf.RoundToInt(1200 - 750 * (beatmapData.ApproachRate - 5) / 5);
+
+
+        foreach (HitCircleData hitCircleData in beatmapData.HitCircles)
         {
-            var msBeforeObjectHit = 0;
+            var newHitObject = Instantiate(hitObject);
 
-            if (ApproachRate < 5.0f)
-                msBeforeObjectHit = Mathf.RoundToInt(1200 + 600 * (5 - ApproachRate) / 5);
-            else if (ApproachRate == 5.0f)
-                msBeforeObjectHit = 1200;
-            else if (ApproachRate > 5.0f) msBeforeObjectHit = Mathf.RoundToInt(1200 - 750 * (ApproachRate - 5) / 5);
-            //Debug.Log(songLines[i]);
-            //var line = songLines[i].Split(",");
-            // ---------- Hit Circle -----------
-            if (line.Length == 6)
-            {
-                var newHitObject = Instantiate(hitObject);
-
-                newHitObject.GetComponent<HitCircle>().ApproachRate = ApproachRate;
-                newHitObject.GetComponent<HitCircle>().CircleSize = CircleSize;
-
+            newHitObject.GetComponent<HitCircle>().ApproachRate = beatmapData.ApproachRate;
+            newHitObject.GetComponent<HitCircle>().CircleSize = beatmapData.CircleSize;
+            
+            #region Combo stuff
                 for (var x = 0; x < 1000; x++)
                     if (comboCounter < 10)
                     {
@@ -152,88 +152,71 @@ public class SongLoader : MonoBehaviour
                     }
 
                 comboCounter++;
-                var hitY = 0 - (float.Parse(line[1]) / divideAmmount - 4f);
+            #endregion
+            
+            var hitY = 0 - (hitCircleData.position.y / divideAmmount - 4f);
 
 
-                newHitObject.transform.position = new Vector3(float.Parse(line[0]) / divideAmmount - 5.2f, hitY, zPos);
-                zPos += 0.1f;
-                if (line[3] == "2" || line[3] == "4" || line[3] == "5" || line[3] == "6") comboCounter = 1;
-                newHitObject.GetComponent<HitCircle>().unHideOsuObject(int.Parse(line[2]) - msBeforeObjectHit);
-            }
-
-            // ----------------------------------
-            // ------------- Slider -------------
-            if (line.Length == 11)
-            {
-                var sliderInfo = line[5].Split("|");
-                if (sliderInfo[0].StartsWith('L'))
-                {
-                    // use hit object for the slider's head
-                    var newSliderHitObject = Instantiate(hitSlider);
-
-                    newSliderHitObject.GetComponent<HitCircleSlider>().ApproachRate = beatmapData.ApproachRate;
-                    newSliderHitObject.GetComponent<HitCircleSlider>().CircleSize = beatmapData.CircleSize;
-                    newSliderHitObject.GetComponent<HitCircleSlider>().hitObjectLine = songLines[i];
-
-                    for (var x = 0; x < 1000; x++)
-                        if (comboCounter < 10)
-                        {
-                            newSliderHitObject.transform.GetChild(3).GetComponent<SpriteRenderer>().sprite =
-                                num[comboCounter];
-                        }
-                        else if (comboCounter < 100)
-                        {
-                            newSliderHitObject.transform.GetChild(3).gameObject.SetActive(false);
-                            newSliderHitObject.transform.GetChild(4).gameObject.SetActive(true);
-                            newSliderHitObject.transform.GetChild(5).gameObject.SetActive(true);
-
-                            var numStr = comboCounter.ToString();
-                            var firstDigitStr = numStr[1] + " ";
-                            var firstDigit = int.Parse(firstDigitStr);
-                            var secondDigitStr = numStr[0] + " ";
-                            var secondDigit = int.Parse(secondDigitStr);
-
-                            newSliderHitObject.transform.GetChild(5).GetComponent<SpriteRenderer>().sprite =
-                                num[firstDigit];
-                            newSliderHitObject.transform.GetChild(6).GetComponent<SpriteRenderer>().sprite =
-                                num[secondDigit];
-                        }
-
-                    comboCounter++;
-                    var hitY = 0 - (float.Parse(line[1]) / divideAmmount - 4f);
-
-
-                    newSliderHitObject.transform.position =
-                        new Vector3(float.Parse(line[0]) / divideAmmount - 5.2f, hitY, zPos);
-                    zPos += 0.1f;
-                    if (line[3] == "2" || line[3] == "4" || line[3] == "5" || line[3] == "6") comboCounter = 1;
-
-                    newSliderHitObject.GetComponent<HitCircleSlider>()
-                        .unHideOsuObject(int.Parse(line[2]) - msBeforeObjectHit);
-
-                    // draw slider body
-                    var point = sliderInfo[1].Split(':');
-                    // convert the x, y coordinates so it's not mirrored or something.
-                    //Debug.Log(songLines[i]);
-
-                    var pointX = float.Parse(point[0]) / divideAmmount - 5.2f;
-                    var pointY = 0 - (float.Parse(point[1]) / divideAmmount - 4f);
-                    newSliderHitObject.GetComponent<HitSlider>().xPos = pointX;
-                    newSliderHitObject.GetComponent<HitSlider>().yPos = pointY;
-                    newSliderHitObject.GetComponent<HitSlider>().zPos = zPos;
-                    newSliderHitObject.GetComponent<HitSlider>().pos = songLines[i];
-                }
-            }
-
-            // -------------------------------
-            // ---------  Spinner  -----------
-            if (line.Length == 7)
-            {
-            }
-
-            songPlayButton.SetActive(true);
-            // -------------------------------
+            newHitObject.transform.position = new Vector3(hitCircleData.position.x / divideAmmount - 5.2f, hitY, zPos);
+            zPos += 0.1f;
+            if (hitCircleData.newCombo) comboCounter = 1;
+            newHitObject.GetComponent<HitCircle>().unHideOsuObject(hitCircleData.time - msBeforeObjectHit);
         }
+
+        foreach (SliderData sliderData in beatmapData.Sliders)
+        {
+            var newHitObject = Instantiate(hitObject);
+
+            newHitObject.GetComponent<HitCircleSlider>().ApproachRate = beatmapData.ApproachRate;
+            newHitObject.GetComponent<HitCircleSlider>().CircleSize = beatmapData.CircleSize;
+            
+            #region Combo stuff
+            for (var x = 0; x < 1000; x++)
+                if (comboCounter < 10)
+                {
+                    newHitObject.transform.GetChild(3).GetComponent<SpriteRenderer>().sprite = num[comboCounter];
+                }
+                else if (comboCounter < 100)
+                {
+                    newHitObject.transform.GetChild(3).gameObject.SetActive(false);
+                    newHitObject.transform.GetChild(4).gameObject.SetActive(true);
+                    newHitObject.transform.GetChild(5).gameObject.SetActive(true);
+
+                    var numStr = comboCounter.ToString();
+                    var firstDigitStr = numStr[1] + " ";
+                    var firstDigit = int.Parse(firstDigitStr);
+                    var secondDigitStr = numStr[0] + " ";
+                    var secondDigit = int.Parse(secondDigitStr);
+
+                    //Debug.Log(firstDigit);
+                    //Debug.Log(secondDigit);
+                    newHitObject.transform.GetChild(5).GetComponent<SpriteRenderer>().sprite = num[firstDigit];
+                    newHitObject.transform.GetChild(6).GetComponent<SpriteRenderer>().sprite = num[secondDigit];
+                }
+
+            comboCounter++;
+            #endregion
+            
+            var hitY = 0 - (sliderData.position.y / divideAmmount - 4f);
+
+
+            newHitObject.transform.position = new Vector3(sliderData.position.x / divideAmmount - 5.2f, hitY, zPos);
+            zPos += 0.1f;
+            if (sliderData.newCombo) comboCounter = 1;
+            newHitObject.GetComponent<HitCircleSlider>().unHideOsuObject(sliderData.time - msBeforeObjectHit);
+            newHitObject.GetComponent<HitSlider>().sliderData = sliderData;
+
+
+        }
+        
+        foreach (SpinnerData spinnerData in beatmapData.Spinners)
+        {
+            //TODO
+        }
+        
+        songPlayButton.SetActive(true);
+        
+        
     }
 
     public void startSong()
@@ -311,12 +294,14 @@ public class SongLoader : MonoBehaviour
         var now = DateTimeOffset.UtcNow;
         var unixTimeMilliseconds = now.ToUnixTimeMilliseconds();
         var msSinceSongStart = unixTimeMilliseconds - startTime;
-        var currentTimingPoint = "";
-        for (var i = 0; i < allTimingPoints.Count; i++)
+        
+        TimingPoint currentTimingPoint = null;
+
+
+        foreach (TimingPoint timingPoint in beatmapData.TimingPoints)
         {
-            //Debug.Log(allTimingPoints[i].Split(',')[0]);
-            var timingPointMS = int.Parse(allTimingPoints[i].Split(',')[0]);
-            if (msSinceSongStart > timingPointMS) currentTimingPoint = allTimingPoints[i];
+            var timingPointMS = timingPoint.time;
+            if (msSinceSongStart > timingPointMS) currentTimingPoint = timingPoint;
         }
 
         this.currentTimingPoint = currentTimingPoint;
