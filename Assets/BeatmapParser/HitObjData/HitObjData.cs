@@ -12,5 +12,17 @@ namespace BeatmapParser.HitObjData
         public int time;
         public bool newCombo;
         public int colorHaxBitIndex;
+        
+        
+        public float getScaledX()
+        {
+            return position.x / SongLoader.divideAmount - 5.2f;
+        }
+        
+        public float getScaledY()
+        {
+            return 0 - (position.y / SongLoader.divideAmount - 4f);
+        }
+        
     }
 }

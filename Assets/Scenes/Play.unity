@@ -165,8 +165,6 @@ MonoBehaviour:
   testMapDir: C:\Users\suvan\AppData\LocalLow\kone\kosu!\320118 Reol - No title
   correctOsuFile: 
   comboCounter: 1
-  currentTimingPoint: 
-  allTimingPoints: []
   startTime: 0
   sliderMultiplier: 0
   divideAmmount: 50
@@ -426,7 +424,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e66665ac1285b5746b26f8d48f025eb2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b48c54e957ab19c4686c143429d26d50, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -672,7 +670,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1629199972429430375, guid: 9fb4f71cb66540e43a73929ca1a3d623, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -200.8324
+      value: -200.83243
       objectReference: {fileID: 0}
     - target: {fileID: 1629199972429430375, guid: 9fb4f71cb66540e43a73929ca1a3d623, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1111,6 +1109,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 1519671998558829140, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[1].x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1519671998558829140, guid: df8647199c56fed41b0d191b5b881795, type: 3}
       propertyPath: m_Positions.Array.data[2].x
       value: 2.1905308
       objectReference: {fileID: 0}
@@ -1279,18 +1281,51 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
-      propertyPath: m_Positions.Array.data[2].x
+      propertyPath: m_Loop
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
-      propertyPath: m_Positions.Array.data[2].y
+      propertyPath: m_Positions.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[1].x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[1].y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[2].x
+      value: 3.04
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[2].y
+      value: 3.15
       objectReference: {fileID: 0}
     - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
       propertyPath: m_Positions.Array.data[2].z
       value: 18
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[3].x
+      value: 5.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[3].z
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[4].x
+      value: 5.17
+      objectReference: {fileID: 0}
+    - target: {fileID: 8960672844111819007, guid: df8647199c56fed41b0d191b5b881795, type: 3}
+      propertyPath: m_Positions.Array.data[4].z
+      value: 18
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 1519671998558829140, guid: df8647199c56fed41b0d191b5b881795, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

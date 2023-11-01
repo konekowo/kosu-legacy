@@ -50,7 +50,7 @@ public class SongLoader : MonoBehaviour
 
     [Header("Song Import Settings")]
     // Used for placing Hit Circles and Sliders
-    public float divideAmmount = 10f;
+    public static float divideAmount = 10f;
 
     public Sprite[] num;
     public int noteOffset; // (in miliseconds)
@@ -154,10 +154,10 @@ public class SongLoader : MonoBehaviour
                 comboCounter++;
             #endregion
             
-            var hitY = 0 - (hitCircleData.position.y / divideAmmount - 4f);
+            var hitY = 0 - (hitCircleData.position.y / divideAmount - 4f);
 
 
-            newHitObject.transform.position = new Vector3(hitCircleData.position.x / divideAmmount - 5.2f, hitY, zPos);
+            newHitObject.transform.position = new Vector3(hitCircleData.position.x / divideAmount - 5.2f, hitY, zPos);
             zPos += 0.1f;
             if (hitCircleData.newCombo) comboCounter = 1;
             newHitObject.GetComponent<HitCircle>().unHideOsuObject(hitCircleData.time - msBeforeObjectHit);
@@ -165,7 +165,7 @@ public class SongLoader : MonoBehaviour
 
         foreach (SliderData sliderData in beatmapData.Sliders)
         {
-            var newHitObject = Instantiate(hitObject);
+            var newHitObject = Instantiate(hitSlider);
 
             newHitObject.GetComponent<HitCircleSlider>().ApproachRate = beatmapData.ApproachRate;
             newHitObject.GetComponent<HitCircleSlider>().CircleSize = beatmapData.CircleSize;
@@ -197,10 +197,10 @@ public class SongLoader : MonoBehaviour
             comboCounter++;
             #endregion
             
-            var hitY = 0 - (sliderData.position.y / divideAmmount - 4f);
+            var hitY = 0 - (sliderData.position.y / divideAmount - 4f);
 
 
-            newHitObject.transform.position = new Vector3(sliderData.position.x / divideAmmount - 5.2f, hitY, zPos);
+            newHitObject.transform.position = new Vector3(sliderData.position.x / divideAmount - 5.2f, hitY, zPos);
             zPos += 0.1f;
             if (sliderData.newCombo) comboCounter = 1;
             newHitObject.GetComponent<HitCircleSlider>().unHideOsuObject(sliderData.time - msBeforeObjectHit);
