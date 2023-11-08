@@ -8,7 +8,7 @@ public class enableOsuButtonForPlay : MonoBehaviour
     public void switchToPlay()
     {
         if (GameObject.Find("SongSelectCarousel").GetComponent<SongSelectCarousel>().selectedSong != null)
-            GameObject.Find("LevelLoader").GetComponent<LevelLoader>().loadWithIndex(2);
+            GameObject.Find("LevelLoader").GetComponent<LevelLoader>().loadWithIndex(3);
     }
 
     // Start is called before the first frame update

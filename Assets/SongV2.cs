@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using BeatmapParser.Exceptions;
 using TMPro;
 using Unity.SharpZipLib.Utils;
 using Unity.VisualScripting;
@@ -91,7 +92,15 @@ public class SongV2 : MonoBehaviour
 #if UNITY_EDITOR
         imageURL = localhostRhodiumProxyURL;
 #endif
-        imageURL += "https://assets.ppy.sh/beatmaps/" + SID + "/covers/cover.jpg";
+        if (useProxy)
+        {
+            imageURL += "https://assets.ppy.sh/beatmaps/" + SID + "/covers/cover.jpg";
+        }
+        else
+        {
+            imageURL = "https://assets.ppy.sh/beatmaps/" + SID + "/covers/cover.jpg";
+        }
+        
 
 
         var data = UnityWebRequestTexture.GetTexture(imageURL);
@@ -130,14 +139,20 @@ public class SongV2 : MonoBehaviour
     }
 
 
-    public async void downloadBeatmap()
+    public void downloadBeatmap()
     {
         downloadButton.GetComponent<Button>().interactable = false;
         downloadLoadingBox.SetActive(true);
 
+        processingMapLoadingBox.SetActive(false);
+        checkBeatmapAlreadyDownloaded();
+    }
+
+    public async void download()
+    {
         var path = Application.persistentDataPath + "/Songs/" + SID + " " + Artist + " - " + Title;
         var data = UnityWebRequest.Get(minoServerURL + "d/" + SID);
-        await data.SendWebRequest();
+        data.SendWebRequest();
         if (data.result == UnityWebRequest.Result.Success)
         {
             downloadLoadingBox.SetActive(false);
@@ -155,118 +170,88 @@ public class SongV2 : MonoBehaviour
             }
             catch (FileNotFoundException error)
             {
-                var newErrorScreen = Instantiate(errorScreen, errorScreen.transform.parent, false);
-                var errorScreenObj = newErrorScreen.GetComponent<SongBrowserError>();
-                errorScreenObj.setContent("Beatmap SID: " + SID + "\n" + error.Message);
-                errorScreenObj.setTitle("Error when downloading beatmap");
-                errorScreenObj.show();
+                downloadError(error.Message, SID);
             }
             catch (FileLoadException error)
             {
-                var newErrorScreen = Instantiate(errorScreen, errorScreen.transform.parent, false);
-                var errorScreenObj = newErrorScreen.GetComponent<SongBrowserError>();
-                errorScreenObj.setContent("Beatmap SID: " + SID + "\n" + error.Message);
-                errorScreenObj.setTitle("Error when downloading beatmap");
-                errorScreenObj.show();
+                downloadError(error.Message, SID);
             }
             catch (DirectoryNotFoundException error)
             {
-                var newErrorScreen = Instantiate(errorScreen, errorScreen.transform.parent, false);
-                var errorScreenObj = newErrorScreen.GetComponent<SongBrowserError>();
-                errorScreenObj.setContent("Beatmap SID: " + SID + "\n" + error.Message);
-                errorScreenObj.setTitle("Error when downloading beatmap");
-                errorScreenObj.show();
+                downloadError(error.Message, SID);
             }
 
             Debug.Log("Uncompress done, original zip file deleted.");
             if (Directory.Exists(path))
             {
-                // Get Star Ratings
-                var filePath = path + "/kosuStarRating.txt";
-                File.WriteAllText(filePath, "");
-                Debug.Log("Getting difficulty ratings for each children beatmap...");
-                var data0 = UnityWebRequest.Get(minoServerURL + "api/s/" + SID);
-                await data0.SendWebRequest();
-                if (data0.result == UnityWebRequest.Result.Success)
+                try
                 {
-                    Debug.Log(data0.url);
-                    //Debug.Log(data.downloadHandler.text);
-                    var obj = JObject.Parse(data0.downloadHandler.text);
-                    foreach (var singleProp in obj.Properties())
-                        if (singleProp.Name.StartsWith("ChildrenBeatmaps"))
-                        {
-                            // Get Children Beatmap array
-                            var array2 = singleProp.Children<JArray>();
-                            // For each Child Beatmap
-                            foreach (JObject obj2 in array2.Children())
-                                // For each property in Child Beatmap
-                            foreach (var singleProp2 in obj2.Properties())
-                            {
-                                if (singleProp2.Name == "DiffName")
-                                {
-                                    var textBefore = File.ReadAllText(filePath);
-                                    // used emoji to seperate diff name and diff rating to make sure it doesnt split in the diff name or diff rating, only in between them.
-                                    File.WriteAllText(filePath, textBefore + singleProp2.Value.ToString() + "📂");
-                                }
-
-                                if (singleProp2.Name == "DifficultyRating")
-                                {
-                                    var textBefore = File.ReadAllText(filePath);
-                                    File.WriteAllText(filePath, textBefore + singleProp2.Value.ToString() + "\n");
-                                }
-                            }
-                        }
+                    processMap(path, SID);
                 }
-                
-                
-                // Process beatmap
-                
-                // check if beatmap is in correct format
-                string[] files = Directory.GetFiles(path);
-                bool wrongFormat = false;
-                for (int i = 0; i < files.Length; i++)
+                catch (BeatMapNotSupportedException e)
                 {
-                    if (files[i].EndsWith(".osu"))
-                    {
-                        if (!File.ReadAllLines(files[i])[0].StartsWith("osu file format v14") && !File.ReadAllLines(files[i])[0].StartsWith("osu file format v13")
-                            && !File.ReadAllLines(files[i])[0].StartsWith("osu file format v12"))
-                        {
-                            Debug.LogError("Beatmap is not in correct format, deleting!");
-                            var newErrorScreen = Instantiate(errorScreen, errorScreen.transform.parent, false);
-                            var errorScreenObj = newErrorScreen.GetComponent<SongBrowserError>();
-                            errorScreenObj.setContent("Beatmap SID: " + SID + "\n" + "The BeatMap is not in the correct format. Deleting BeatMap!");
-                            errorScreenObj.setTitle("Error when processing beatmap");
-                            errorScreenObj.show();
-                            wrongFormat = true;
-                        }
-                    }
-                    if (wrongFormat)
-                    {
-                        File.Delete(files[i]);
-                    }
+                    downloadError(e.Message, SID);
                 }
-
-                if (!wrongFormat)
-                {
-                    string textToWrite = File.ReadAllText(Application.persistentDataPath + "/beatmaps.kosudb") + SongSelectCarousel.processFolder(path);
-                    File.WriteAllText(Application.persistentDataPath + "/beatmaps.kosudb", textToWrite);
-                }
-                else
-                {
-                    Directory.Delete(path);
-                }
-                
-                
 
             }
 
-            processingMapLoadingBox.SetActive(false);
-            checkBeatmapAlreadyDownloaded();
+            
         }
         else
         {
             Debug.LogError("Could not donwload beatmap. Error: " + data.error);
         }
+    }
+
+
+    public static void processMap(string path, string SID)
+    {
+        // Process beatmap
+        
+        // check if beatmap is in correct format
+        string[] files = Directory.GetFiles(path);
+        bool wrongFormat = false;
+        for (int i = 0; i < files.Length; i++)
+        {
+            if (files[i].EndsWith(".osu"))
+            {
+                if (!File.ReadAllLines(files[i])[0].StartsWith("osu file format v14") && !File.ReadAllLines(files[i])[0].StartsWith("osu file format v13")
+                    && !File.ReadAllLines(files[i])[0].StartsWith("osu file format v12"))
+                {
+                    Debug.LogError("Beatmap is not in correct format, deleting!");
+                    wrongFormat = true;
+                }
+            }
+            
+        }
+
+        for (int i = 0; i < files.Length; i++)
+        {
+            if (wrongFormat)
+            {
+                File.Delete(files[i]);
+            }
+        }
+
+        if (!wrongFormat)
+        {
+            string textToWrite = File.ReadAllText(Application.persistentDataPath + "/beatmaps.kosudb") + SongSelectCarousel.processFolder(path);
+            File.WriteAllText(Application.persistentDataPath + "/beatmaps.kosudb", textToWrite);
+        }
+        else
+        {
+            Directory.Delete(path);
+            throw new BeatMapNotSupportedException("BeatMap is too old!");
+        }
+    }
+
+    private void downloadError(string message, string sid)
+    {
+        var newErrorScreen = Instantiate(errorScreen, errorScreen.transform.parent, false);
+        var errorScreenObj = newErrorScreen.GetComponent<SongBrowserError>();
+        errorScreenObj.setContent("Beatmap SID: " + sid + "\n" +message);
+        errorScreenObj.setTitle("Error when downloading beatmap");
+        errorScreenObj.show();
     }
 
 
@@ -296,7 +281,15 @@ public class SongV2 : MonoBehaviour
 #if UNITY_EDITOR
             previewURL = localhostRhodiumProxyURL;
 #endif
-            previewURL += minoServerURL + "preview/audio/" + SID + "?set=1";
+            if (useProxy)
+            {
+                previewURL += minoServerURL + "preview/audio/" + SID + "?set=1";
+            }
+            else
+            {
+                previewURL = minoServerURL + "preview/audio/" + SID + "?set=1";
+            }
+            
 
             previewButton.transform.GetChild(0).GetComponent<Image>().sprite = PauseSprite;
             soundSystem.Pause();

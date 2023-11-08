@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,21 +10,28 @@ public class LevelLoader : MonoBehaviour
 
     public float transitionTime = 1f;
 
+
+    private void Start()
+    {
+        transition.SetTrigger("End");
+    }
+
     public void loadSongSelect()
     {
         Debug.Log("Switching...");
-        StartCoroutine(LoadLevel(1));
+        transition.SetTrigger("Start");
+        StartCoroutine(LoadLevel(2, transitionTime));
     }
 
     public void loadMainMenu()
     {
         Debug.Log("Switching...");
-        StartCoroutine(LoadLevel(0));
+        transition.SetTrigger("Start");
+        StartCoroutine(LoadLevel(0, transitionTime));
     }
 
-    private IEnumerator LoadLevel(int levelIndex)
+    public static IEnumerator LoadLevel(int levelIndex, float transitionTime)
     {
-        transition.SetTrigger("Start");
         yield return new WaitForSeconds(transitionTime);
         SceneManager.LoadScene(levelIndex);
     }
@@ -31,6 +39,7 @@ public class LevelLoader : MonoBehaviour
     public void loadWithIndex(int i)
     {
         Debug.Log("Switching...");
-        StartCoroutine(LoadLevel(i));
+        transition.SetTrigger("Start");
+        StartCoroutine(LoadLevel(i, transitionTime));
     }
 }

@@ -34,7 +34,7 @@ public class SoundSystem : MonoBehaviour
         else
         {
             // Or retrieve results as binary data
-
+            
             var results = www.downloadHandler.data;
             unZipSong(results, fileName);
         }
@@ -43,14 +43,16 @@ public class SoundSystem : MonoBehaviour
     private void unZipSong(byte[] results, string fileName)
     {
         var SID = fileName.Split(' ')[0];
-        var Title = fileName.Split('-')[1];
+        var Title = fileName.Split(" - ")[1];
+        var Artist = fileName.Split(" - ")[0];
         Title = Title.Substring(1, Title.Length - 5);
-        var path = Application.persistentDataPath + "/Songs/" + SID + " - " + Title + ".zip";
+        var path = Application.persistentDataPath + "/Songs/" + SID + " " + Artist + " - " + Title + ".zip";
         File.WriteAllBytes(path, results);
         Debug.Log("Downloaded Beatmap, uncompressing...");
-        ZipUtility.UncompressFromZip(path, null, Application.persistentDataPath + "/Songs/" + SID + " - " + Title);
+        ZipUtility.UncompressFromZip(path, null, Application.persistentDataPath + "/Songs/" + SID + " " + Artist + " - " + Title);
         File.Delete(path);
         Debug.Log("Uncompress done, original zip file deleted.");
+        SongV2.processMap(Application.persistentDataPath + "/Songs/" + SID + " " + Artist + " - " + Title, SID);
         JSAlert("Beatmap Imported!");
     }
 
