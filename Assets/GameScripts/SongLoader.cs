@@ -50,7 +50,7 @@ public class SongLoader : MonoBehaviour
 
     [Header("Song Import Settings")]
     // Used for placing Hit Circles and Sliders
-    public static float divideAmount = 10f;
+    public static float divideAmount = 50f;
 
     public Sprite[] num;
     public int noteOffset; // (in miliseconds)
@@ -160,8 +160,10 @@ public class SongLoader : MonoBehaviour
             newHitObject.transform.position = new Vector3(hitCircleData.position.x / divideAmount - 5.2f, hitY, zPos);
             zPos += 0.1f;
             if (hitCircleData.newCombo) comboCounter = 1;
+            Debug.Log(hitCircleData.time);
             newHitObject.GetComponent<HitCircle>().unHideOsuObject(hitCircleData.time - msBeforeObjectHit);
         }
+        
 
         foreach (SliderData sliderData in beatmapData.Sliders)
         {

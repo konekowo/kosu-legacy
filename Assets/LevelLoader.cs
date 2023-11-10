@@ -9,12 +9,7 @@ public class LevelLoader : MonoBehaviour
     public Animator transition;
 
     public float transitionTime = 1f;
-
-
-    private void Start()
-    {
-        transition.SetTrigger("End");
-    }
+    
 
     public void loadSongSelect()
     {

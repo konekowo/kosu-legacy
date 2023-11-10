@@ -18,6 +18,12 @@ public class AfterPreMain : MonoBehaviour
         gameObject.GetComponent<Animator>().runtimeAnimatorController = animationController;
         gameObject.transform.GetChild(0).gameObject.SetActive(false);
         gameObject.transform.GetChild(1).gameObject.SetActive(false);
+        gameObject.transform.GetChild(2).gameObject.SetActive(false);
+        StartCoroutine(setupAnimator());
     }
-
+    private IEnumerator setupAnimator()
+    {
+        yield return new WaitForSeconds(1f);
+        gameObject.transform.GetChild(2).gameObject.SetActive(true);
+    }
 }
