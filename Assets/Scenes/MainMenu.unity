@@ -29246,7 +29246,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 202.00003}
+  m_AnchoredPosition: {x: 0, y: 202}
   m_SizeDelta: {x: 0, y: 450}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1166921550
@@ -45690,7 +45690,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -101.400055, y: -0.0703125}
+  m_AnchoredPosition: {x: -101.400024, y: -0.0703125}
   m_SizeDelta: {x: -1148.5599, y: -412.32}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &1738307273
@@ -51922,7 +51922,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 935308186}
   m_HandleRect: {fileID: 935308185}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -55916,7 +55916,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0.2, y: 1}
-  m_AnchoredPosition: {x: 254.40015, y: -9.470001}
+  m_AnchoredPosition: {x: 254.4001, y: -9.470001}
   m_SizeDelta: {x: 475.74, y: -98.52}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2136881937
@@ -57725,10 +57725,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 7288073970432695048, guid: fb5c60b4be88b59429034e4c9841385a, type: 3}
-      propertyPath: m_audioClip
-      value: 
-      objectReference: {fileID: 8300000, guid: 42718b615358c4c42b4efd059fe33bfe, type: 3}
     - target: {fileID: 7288073970432695049, guid: fb5c60b4be88b59429034e4c9841385a, type: 3}
       propertyPath: m_RootOrder
       value: 6
