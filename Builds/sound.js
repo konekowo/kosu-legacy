@@ -1,6 +1,4 @@
-
-
-var audio = new Audio();
+let audio = new Audio();
 audio.loop = false;
 let unityInstanceSound;
 
