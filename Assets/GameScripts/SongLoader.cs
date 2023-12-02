@@ -59,6 +59,8 @@ public class SongLoader : MonoBehaviour
     public bool startSongButtonHasBeenClicked = false;
 
     public BeatmapData beatmapData;
+
+    public static bool inGameplay = false;
     
     private void Start()
     {
@@ -225,7 +227,7 @@ public class SongLoader : MonoBehaviour
     {
         songPlayButton.SetActive(false);
         startSongButtonHasBeenClicked = true;
-
+        inGameplay = true;
         GameObject.FindGameObjectWithTag("SoundSystem").GetComponent<AudioSource>().Play();
         var now = DateTimeOffset.UtcNow;
         var unixTimeMilliseconds = now.ToUnixTimeMilliseconds();

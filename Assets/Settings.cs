@@ -151,10 +151,17 @@ public class Settings : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) == true && isSettingsOpen == true)
+        if (Input.GetKeyDown(KeyCode.Escape))
+            CloseSettings();
+    }
+
+    public void CloseSettings()
+    {
+        if (isSettingsOpen)
         {
             animator.SetBool("isSettingsOpen", false);
             isSettingsOpen = false;
         }
     }
+    
 }
