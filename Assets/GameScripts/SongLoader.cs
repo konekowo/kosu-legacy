@@ -121,7 +121,7 @@ public class SongLoader : MonoBehaviour
 
 
         int zIndex = 0;
-        float zPos = 14.0f;
+        float zPos = 15.0f;
         
         var msBeforeObjectHit = 0;
         if (beatmapData.ApproachRate < 5.0f)
@@ -175,9 +175,9 @@ public class SongLoader : MonoBehaviour
             newHitObject.transform.position = new Vector3(hitObjGamePos.x, hitObjGamePos.y, zPos);
             newHitObject.GetComponent<SortingGroup>().sortingOrder = zIndex;
             zIndex++;
-            zPos += 0.01f;
+            zPos += 0.1f;
             if (hitCircleData.newCombo) comboCounter = 1;
-            Debug.Log(hitCircleData.time);
+            //Debug.Log(hitCircleData.time);
             newHitObject.GetComponent<HitCircle>().unHideOsuObject(hitCircleData.time - msBeforeObjectHit);
         }
         
@@ -314,6 +314,11 @@ public class SongLoader : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            GameObject.Find("LevelLoader").GetComponent<LevelLoader>().loadSongSelect();
+            inGameplay = false;
+        }
         var now = DateTimeOffset.UtcNow;
         var unixTimeMilliseconds = now.ToUnixTimeMilliseconds();
         var msSinceSongStart = unixTimeMilliseconds - startTime;
@@ -347,6 +352,8 @@ public class SongLoader : MonoBehaviour
             OsuPixelsToGameVector.ConvertToGameVector(new Vector2(512,0), Camera.main));
         Gizmos.DrawLine(OsuPixelsToGameVector.ConvertToGameVector(new Vector2(512,0), Camera.main),
             OsuPixelsToGameVector.ConvertToGameVector(new Vector2(0,0), Camera.main));
+
+        
         
     }
 }

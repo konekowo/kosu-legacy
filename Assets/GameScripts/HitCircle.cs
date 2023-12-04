@@ -193,59 +193,67 @@ public class HitCircle : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update()
+    private async void Update()
     {
-        
-        if ((Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) &&
-            Cursor.GetComponent<CursorScript>().colliding.transform.parent.gameObject.Equals(gameObject) && !clicked && !missed)
-        {
-          
-
-            clicked = true;
-
-            long hitms = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - songLoader.startTime;
-            if (hitms > hitData.time)
+        if(Cursor.GetComponent<CursorScript>().colliding) {
+            if ((Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Z) || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1)) &&
+                Cursor.GetComponent<CursorScript>().colliding.transform.parent.gameObject.Equals(gameObject) && !clicked && !missed)
             {
-                hitError = hitms - hitData.time;
-            }
-            else
-            {
-                hitError = hitData.time - hitms;
-            }
-
-            missed = false;
-
-            disableCircle();
-
-            
-            
-            if (hitError <= hitwindow300)
-            {
-                Debug.Log("300");
-            }
-            if (hitError > hitwindow300 && hitError <= hitwindow100)
-            {
-                hitScore.SetTrigger("100");
-            }
-            if (hitError > hitwindow100 && hitError <= hitwindow50)
-            {
-                hitScore.SetTrigger("50");
-            }
-
-            try
-            {
-                gameObject.transform.GetChild(11).transform.parent = null;
-            }
-            catch
-            {
+              
+    
+                clicked = true;
+    
+                long hitms = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() - songLoader.startTime;
+                if (hitms > hitData.time)
+                {
+                    hitError = hitms - hitData.time;
+                }
+                else
+                {
+                    hitError = hitData.time - hitms;
+                }
+    
+                missed = false;
+    
+                disableCircle();
+    
                 
+                
+                if (hitError <= hitwindow300)
+                {
+                    Debug.Log("300");
+                }
+                if (hitError > hitwindow300 && hitError <= hitwindow100)
+                {
+                    hitScore.SetTrigger("100");
+                }
+                if (hitError > hitwindow100 && hitError <= hitwindow50)
+                {
+                    hitScore.SetTrigger("50");
+                }
+
+
+                GameObject hitScoreObj = gameObject.transform.GetChild(11).gameObject;
+                
+                try
+                {
+                    hitScoreObj.transform.parent = null;
+                }
+                catch
+                {
+                    
+                }
+
+                await UniTask.Delay(1000);
+                Debug.Log("hidden");
+                hitScoreObj.SetActive(false);
+    
+    
+    
+    
+    
+    
             }
-
-
-
-
-
-
         }
         
     }

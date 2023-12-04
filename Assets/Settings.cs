@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Runtime.InteropServices;
 using Cysharp.Threading.Tasks;
+using TMPro;
 
 public class Settings : MonoBehaviour
 {
@@ -17,14 +18,16 @@ public class Settings : MonoBehaviour
     public Animator animator;
     public bool isSettingsOpen = false;
     public GameObject cursorSizeSlider;
+    public GameObject sensitivitySlider;
     public GameObject cursorToggle;
     public GameObject cursorObject;
     public GameObject CSSToggle;
-
+    public TMP_Text SensitivityNote;
 
     [Header("Default Settings")] public int CSSCursorToggle = 1;
     public int CursorTrailToggle = 1;
     public float CursorSizeSlider = 1.254f;
+    public float Sensitivity = 0.2f;
 
 
     public void onCursorSliderChange()
@@ -32,6 +35,14 @@ public class Settings : MonoBehaviour
         cursorObject.transform.localScale = new Vector3(cursorSizeSlider.GetComponent<Slider>().value,
             cursorSizeSlider.GetComponent<Slider>().value, cursorSizeSlider.GetComponent<Slider>().value);
         PlayerPrefs.SetFloat("CursorSizeSlider", cursorSizeSlider.GetComponent<Slider>().value);
+        PlayerPrefs.Save();
+    }
+    
+    public void onSensitivitySliderChange()
+    {
+        cursorObject.GetComponent<CursorScript>().sensitivity = sensitivitySlider.GetComponent<Slider>().value;
+        PlayerPrefs.SetFloat("Sensitivity", sensitivitySlider.GetComponent<Slider>().value);
+        SensitivityNote.SetText("Sensitivity Value: "+ sensitivitySlider.GetComponent<Slider>().value);
         PlayerPrefs.Save();
     }
 
@@ -99,6 +110,7 @@ public class Settings : MonoBehaviour
             cursorToggle.GetComponent<Toggle>().isOn = false;
 
         cursorSizeSlider.GetComponent<Slider>().value = PlayerPrefs.GetFloat("CursorSizeSlider");
+        sensitivitySlider.GetComponent<Slider>().value = PlayerPrefs.GetFloat("Sensitivity");
     }
 
     private void makeDefaultSettings()
@@ -117,6 +129,7 @@ public class Settings : MonoBehaviour
 #endif
             PlayerPrefs.SetInt("CursorTrailToggle", CursorTrailToggle);
             PlayerPrefs.SetFloat("CursorSizeSlider", CursorSizeSlider);
+            PlayerPrefs.SetFloat("Sensitivity", Sensitivity);
             PlayerPrefs.Save();
         }
     }
@@ -136,7 +149,7 @@ public class Settings : MonoBehaviour
         makeDefaultSettings();
 
         checkSavedSettings();
-
+        onSensitivitySliderChange();
         onCSSToggleChange();
         onCursorToggleChange();
         onCursorSliderChange();

@@ -65,14 +65,14 @@ public class CursorScript : MonoBehaviour
 
         RaycastHit hit;
         Ray ray = new Ray(transform.position, transform.forward);
-        if (Physics.Raycast(ray, out hit, 25))
+        if (Physics.Raycast(ray, out hit,  Mathf.Infinity))
         {
             Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             colliding = hit.transform.gameObject;
         }
         else
         {
-            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 25, Color.white);
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 1000, Color.white);
             colliding = null;
         }
 
