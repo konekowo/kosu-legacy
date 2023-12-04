@@ -7,7 +7,6 @@ using System.Threading;
 using BeatmapParser.Exceptions;
 using TMPro;
 using Unity.SharpZipLib.Utils;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;

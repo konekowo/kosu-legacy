@@ -9,7 +9,9 @@ using UnityEditor;
 using System;
 using BeatmapParser;
 using BeatmapParser.HitObjData;
+using BeatmapParser.util;
 using Cysharp.Threading.Tasks;
+using UnityEngine.Rendering;
 using UnityEngine.U2D;
 
 public class SongLoader : MonoBehaviour
@@ -61,6 +63,10 @@ public class SongLoader : MonoBehaviour
     public BeatmapData beatmapData;
 
     public static bool inGameplay = false;
+
+    public GameObject cursor;
+
+    public long mapMS;
     
     private void Start()
     {
@@ -86,6 +92,8 @@ public class SongLoader : MonoBehaviour
             mapDir = testMapDir;
         }
 
+        
+        
         var osuFile = findCorrectOsuFile();
         correctOsuFile = osuFile;
         readOsuFile(correctOsuFile, mapDir);
@@ -110,9 +118,10 @@ public class SongLoader : MonoBehaviour
                 audioPlay(base64EncodedAudio);
 
         #endif
-        
-        
-        var zPos = 14.0f;
+
+
+        int zIndex = 0;
+        float zPos = 14.0f;
         
         var msBeforeObjectHit = 0;
         if (beatmapData.ApproachRate < 5.0f)
@@ -121,13 +130,17 @@ public class SongLoader : MonoBehaviour
             msBeforeObjectHit = 1200;
         else if (beatmapData.ApproachRate > 5.0f) msBeforeObjectHit = Mathf.RoundToInt(1200 - 750 * (beatmapData.ApproachRate - 5) / 5);
 
-
+        
+        
         foreach (HitCircleData hitCircleData in beatmapData.HitCircles)
         {
             var newHitObject = Instantiate(hitObject);
 
             newHitObject.GetComponent<HitCircle>().ApproachRate = beatmapData.ApproachRate;
             newHitObject.GetComponent<HitCircle>().CircleSize = beatmapData.CircleSize;
+            newHitObject.GetComponent<HitCircle>().OverallDifficulty = beatmapData.OverallDifficulty;
+            newHitObject.GetComponent<HitCircle>().hitData = hitCircleData;
+            newHitObject.GetComponent<HitCircle>().Cursor = cursor;
             
             #region Combo stuff
                 for (var x = 0; x < 1000; x++)
@@ -155,18 +168,20 @@ public class SongLoader : MonoBehaviour
 
                 comboCounter++;
             #endregion
-            
-            var hitY = 0 - (hitCircleData.position.y / divideAmount - 4f);
+
+            Vector2 hitObjGamePos = hitCircleData.GetGamePosition();
 
 
-            newHitObject.transform.position = new Vector3(hitCircleData.position.x / divideAmount - 5.2f, hitY, zPos);
-            zPos += 0.1f;
+            newHitObject.transform.position = new Vector3(hitObjGamePos.x, hitObjGamePos.y, zPos);
+            newHitObject.GetComponent<SortingGroup>().sortingOrder = zIndex;
+            zIndex++;
+            zPos += 0.01f;
             if (hitCircleData.newCombo) comboCounter = 1;
             Debug.Log(hitCircleData.time);
             newHitObject.GetComponent<HitCircle>().unHideOsuObject(hitCircleData.time - msBeforeObjectHit);
         }
         
-
+        /*
         foreach (SliderData sliderData in beatmapData.Sliders)
         {
             var newHitObject = Instantiate(hitSlider);
@@ -213,11 +228,15 @@ public class SongLoader : MonoBehaviour
 
         }
         
+        */
+        
         foreach (SpinnerData spinnerData in beatmapData.Spinners)
         {
             //TODO
         }
-        
+
+
+        GameObject.Find("Cursor").GetComponentInChildren<SpriteRenderer>().sortingOrder = zIndex + 1;
         songPlayButton.SetActive(true);
         
         
@@ -298,6 +317,7 @@ public class SongLoader : MonoBehaviour
         var now = DateTimeOffset.UtcNow;
         var unixTimeMilliseconds = now.ToUnixTimeMilliseconds();
         var msSinceSongStart = unixTimeMilliseconds - startTime;
+        mapMS = unixTimeMilliseconds - startTime;
         
         TimingPoint currentTimingPoint = null;
 
@@ -309,5 +329,24 @@ public class SongLoader : MonoBehaviour
         }
 
         this.currentTimingPoint = currentTimingPoint;
+    }
+
+    public void OnDrawGizmos()
+    {
+        // Playfield
+        
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(OsuPixelsToGameVector.ConvertToGameVector(new Vector2(0,0), Camera.main),
+            OsuPixelsToGameVector.ConvertToGameVector(new Vector2(512,384), Camera.main));
+        
+        Gizmos.DrawLine(OsuPixelsToGameVector.ConvertToGameVector(new Vector2(0,0), Camera.main),
+            OsuPixelsToGameVector.ConvertToGameVector(new Vector2(0,384), Camera.main));
+        Gizmos.DrawLine(OsuPixelsToGameVector.ConvertToGameVector(new Vector2(0,384), Camera.main),
+            OsuPixelsToGameVector.ConvertToGameVector(new Vector2(512,384), Camera.main));
+        Gizmos.DrawLine(OsuPixelsToGameVector.ConvertToGameVector(new Vector2(512,384), Camera.main),
+            OsuPixelsToGameVector.ConvertToGameVector(new Vector2(512,0), Camera.main));
+        Gizmos.DrawLine(OsuPixelsToGameVector.ConvertToGameVector(new Vector2(512,0), Camera.main),
+            OsuPixelsToGameVector.ConvertToGameVector(new Vector2(0,0), Camera.main));
+        
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using BeatmapParser.util;
 
 namespace BeatmapParser.HitObjData
 {
@@ -17,6 +18,11 @@ namespace BeatmapParser.HitObjData
         public float getScaledX()
         {
             return position.x / SongLoader.divideAmount - 5.2f;
+        }
+
+        public Vector2 GetGamePosition()
+        {
+            return OsuPixelsToGameVector.ConvertToGameVector(position, Camera.main);
         }
         
         public float getScaledY()

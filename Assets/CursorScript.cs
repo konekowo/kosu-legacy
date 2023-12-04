@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -6,10 +7,12 @@ using UnityEngine;
 public class CursorScript : MonoBehaviour
 {
     public float sensitivity = 0.2f;
+    public GameObject colliding;
     
     // Start is called before the first frame update
     private void Start()
     {
+        
         // if in gameplay, use raw cursor
         if (SongLoader.inGameplay)
         {
@@ -59,5 +62,21 @@ public class CursorScript : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0)) gameObject.GetComponent<Animator>().SetBool("Click", true);
         if (Input.GetMouseButtonUp(0)) gameObject.GetComponent<Animator>().SetBool("Click", false);
+
+        RaycastHit hit;
+        Ray ray = new Ray(transform.position, transform.forward);
+        if (Physics.Raycast(ray, out hit, 25))
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
+            colliding = hit.transform.gameObject;
+        }
+        else
+        {
+            Debug.DrawRay(transform.position, transform.TransformDirection(Vector3.forward) * 25, Color.white);
+            colliding = null;
+        }
+
     }
+
+    
 }
