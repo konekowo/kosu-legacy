@@ -13,7 +13,8 @@ namespace BeatmapParser.HitObjData
         public int time;
         public bool newCombo;
         public int colorHaxBitIndex;
-        
+        public int hitObjNum;
+        public int hitObjNumReverse;
         
         public float getScaledX()
         {

@@ -473,6 +473,36 @@ namespace BeatmapParser
                 }
             #endregion
             #region [HitObjects]
+                int hitObjNum = 0;
+                int hitObjNumReverse = 0;
+                for (int i = hitObjectsIteration; i < rawMapData.Length; i++)
+                {
+                    if (rawMapData[i] == "")
+                    {
+                        
+                        break;
+                    }
+
+                    
+                    
+                    string[] split = rawMapData[i].Split(",");
+                    // Hit Circle
+                    if (split.Length == 6)
+                    {
+                        hitObjNumReverse++;
+                    }
+                    // Slider
+                    if (split.Length == 11)
+                    {
+                        hitObjNumReverse++;
+                    }
+                    // Spinner
+                    if (split.Length == 7)
+                    {
+                        hitObjNumReverse++;
+                    }
+                }
+
                 for (int i = hitObjectsIteration; i < rawMapData.Length; i++)
                 {
                     if (rawMapData[i] == "")
@@ -506,8 +536,12 @@ namespace BeatmapParser
                             hitCircleData.colorHaxBitIndex = int.Parse(split[3]);
                             hitCircleData.newCombo = true;
                         }
-                        
+
+                        hitCircleData.hitObjNum = hitObjNum;
+                        hitCircleData.hitObjNumReverse = hitObjNumReverse;
                         parsedData.HitCircles.Add(hitCircleData);
+                        hitObjNum++;
+                        hitObjNumReverse--;
                     }
                     // Slider
                     if (split.Length == 11)
@@ -568,7 +602,11 @@ namespace BeatmapParser
                             hitSliderData.colorHaxBitIndex = int.Parse(split[3]);
                             hitSliderData.newCombo = true;
                         }
+                        hitSliderData.hitObjNumReverse = hitObjNumReverse;
+                        hitSliderData.hitObjNum = hitObjNum;
                         parsedData.Sliders.Add(hitSliderData);
+                        hitObjNum++;
+                        hitObjNumReverse--;
                     }
                     // Spinner
                     if (split.Length == 7)
@@ -597,14 +635,20 @@ namespace BeatmapParser
                         }
 
                         spinnerData.endTime = int.Parse(split[5]);
-                        
+                        spinnerData.hitObjNum = hitObjNum;
+                        spinnerData.hitObjNumReverse = hitObjNumReverse;
                         parsedData.Spinners.Add(spinnerData);
+                        hitObjNum++;
+                        hitObjNumReverse--;
                     }
                 }
-            #endregion
-            
-            
-            
+
+                parsedData.totalHitObjs = hitObjNum;
+
+                #endregion
+
+
+
         }
 
         public BeatmapData GetParsedData()

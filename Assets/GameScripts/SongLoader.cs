@@ -120,7 +120,7 @@ public class SongLoader : MonoBehaviour
         #endif
 
 
-        int zIndex = 0;
+        
         float zPos = 15.0f;
         
         var msBeforeObjectHit = 0;
@@ -173,8 +173,8 @@ public class SongLoader : MonoBehaviour
 
 
             newHitObject.transform.position = new Vector3(hitObjGamePos.x, hitObjGamePos.y, zPos);
-            newHitObject.GetComponent<SortingGroup>().sortingOrder = zIndex;
-            zIndex++;
+            newHitObject.GetComponent<SortingGroup>().sortingOrder = hitCircleData.hitObjNumReverse;
+            
             zPos += 0.1f;
             if (hitCircleData.newCombo) comboCounter = 1;
             //Debug.Log(hitCircleData.time);
@@ -236,7 +236,7 @@ public class SongLoader : MonoBehaviour
         }
 
 
-        GameObject.Find("Cursor").GetComponentInChildren<SpriteRenderer>().sortingOrder = zIndex + 1;
+        GameObject.Find("Cursor").GetComponentInChildren<SpriteRenderer>().sortingOrder = beatmapData.totalHitObjs + 100;
         songPlayButton.SetActive(true);
         
         

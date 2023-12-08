@@ -243,8 +243,9 @@ namespace BeatmapParser
             public List<HitCircleData> HitCircles = new List<HitCircleData>();
             public List<SliderData> Sliders = new List<SliderData>();
             public List<SpinnerData> Spinners = new List<SpinnerData>();
+            public int totalHitObjs = 0;
 
-        #endregion
+            #endregion
 
     }
 
